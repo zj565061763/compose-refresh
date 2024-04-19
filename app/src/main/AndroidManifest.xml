@@ -23,6 +23,7 @@
         </activity>
 
         <activity android:name="SampleVerticalActivity" />
+        <activity android:name="SampleHorizontalActivity" />
 
     </application>
 

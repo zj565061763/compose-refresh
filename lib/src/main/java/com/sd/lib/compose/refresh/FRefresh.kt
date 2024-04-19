@@ -47,13 +47,12 @@ fun FRefreshContainer(
                 containerSize = it
             }
             .graphicsLayer {
-                val size = when (state.refreshDirection) {
-                    RefreshDirection.Top -> -size.height
-                    RefreshDirection.Bottom -> size.height
-                    RefreshDirection.Left -> -size.width
-                    RefreshDirection.Right -> size.width
+                when (state.refreshDirection) {
+                    RefreshDirection.Top -> translationY = state.offset - size.height
+                    RefreshDirection.Bottom -> translationY = state.offset + size.height
+                    RefreshDirection.Left -> translationX = state.offset - size.width
+                    RefreshDirection.Right -> translationX = state.offset + size.width
                 }
-                translationY = state.offset + size
             },
         contentAlignment = Alignment.Center,
     ) {
