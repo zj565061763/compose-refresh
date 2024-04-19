@@ -30,6 +30,8 @@ fun ColumnView(
         items(list) { item ->
             ColumnViewItem(text = item)
         }
+
+        item { Box(modifier = Modifier.height(50.dp)) }
     }
 }
 

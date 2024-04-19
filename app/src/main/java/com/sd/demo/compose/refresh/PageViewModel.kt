@@ -17,12 +17,18 @@ class PageViewModel : ViewModel() {
 
     val uiState = _uiState.asStateFlow()
 
+    /**
+     * 刷新
+     */
     fun refresh(count: Int) {
         viewModelScope.launch {
             _mutator.mutate { refreshInternal(count = count) }
         }
     }
 
+    /**
+     * 加载更多
+     */
     fun loadMore() {
         viewModelScope.launch {
             _mutator.mutate { loadMoreInternal() }

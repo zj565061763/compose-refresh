@@ -4,11 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -20,6 +17,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.compose.refresh.theme.AppTheme
 import com.sd.lib.compose.refresh.FRefreshContainer
+import com.sd.lib.compose.refresh.rememberFRefreshStateBottom
 import com.sd.lib.compose.refresh.rememberFRefreshStateTop
 
 class SampleVerticalActivity : ComponentActivity() {
@@ -42,42 +40,59 @@ private fun ContentView(
 ) {
     val uiState by vm.uiState.collectAsState()
 
+    // 顶部刷新
     val topRefreshState = rememberFRefreshStateTop {
         vm.refresh(20)
+    }
+
+    // 底部刷新
+    val bottomRefreshState = rememberFRefreshStateBottom {
+        vm.loadMore()
     }
 
     LaunchedEffect(vm) {
         vm.refresh(20)
     }
 
-    Column(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            // 顶部
+            .nestedScroll(topRefreshState.nestedScrollConnection)
+            // 底部
+            .nestedScroll(bottomRefreshState.nestedScrollConnection)
+    ) {
+        ColumnView(
+            list = uiState.list,
+            modifier = Modifier.fillMaxSize(),
+        )
 
-        Button(onClick = { vm.refresh(10) }) {
-            Text(text = "refresh")
-        }
+        // 顶部
+        FRefreshContainer(
+            state = topRefreshState,
+            isRefreshing = uiState.isRefreshing,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
 
-        Box(
-            modifier = modifier
-                .weight(1f)
-                .nestedScroll(topRefreshState.nestedScrollConnection)
-        ) {
-            ColumnView(
-                list = uiState.list,
-                modifier = Modifier.fillMaxSize(),
-            )
-
-            FRefreshContainer(
-                state = topRefreshState,
-                isRefreshing = uiState.isRefreshing,
-                modifier = Modifier.align(Alignment.TopCenter),
-            )
-        }
+        // 底部
+        FRefreshContainer(
+            state = bottomRefreshState,
+            isRefreshing = uiState.isLoadingMore,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
     }
 
     LaunchedEffect(topRefreshState) {
         snapshotFlow { topRefreshState.interactionState }
             .collect {
-                logMsg { "interactionState:$it" }
+                logMsg { "top interactionState:$it" }
+            }
+    }
+
+    LaunchedEffect(bottomRefreshState) {
+        snapshotFlow { bottomRefreshState.interactionState }
+            .collect {
+                logMsg { "bottom interactionState:$it" }
             }
     }
 }
