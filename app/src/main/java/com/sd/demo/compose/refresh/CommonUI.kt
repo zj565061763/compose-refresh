@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 
 @Composable
 fun ColumnView(
@@ -25,7 +23,7 @@ fun ColumnView(
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxSize()
     ) {
         items(list) { item ->
             ColumnViewItem(text = item)
@@ -40,29 +38,15 @@ fun ColumnViewItem(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    ConstraintLayout(
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
             .background(color = Color(0xFFCCCCCC))
     ) {
-        val (refText, refDivider) = createRefs()
-
         Text(
             text = text,
-            modifier = Modifier.constrainAs(refText) {
-                centerTo(parent)
-            },
-        )
-
-        Box(
-            modifier
-                .constrainAs(refDivider) {
-                    width = Dimension.matchParent
-                    height = Dimension.value(1.dp)
-                    bottom.linkTo(parent.bottom)
-                }
-                .background(MaterialTheme.colorScheme.outlineVariant)
+            modifier = Modifier.align(Alignment.Center),
         )
     }
 }
@@ -79,6 +63,8 @@ fun RowView(
         items(list) { item ->
             RowViewItem(text = item)
         }
+
+        item { Box(modifier = Modifier.width(50.dp)) }
     }
 }
 
@@ -87,29 +73,15 @@ fun RowViewItem(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    ConstraintLayout(
+    Box(
         modifier = modifier
             .fillMaxHeight()
             .width(50.dp)
             .background(color = Color(0xFFCCCCCC))
     ) {
-        val (refText, refDivider) = createRefs()
-
         Text(
             text = text,
-            modifier = Modifier.constrainAs(refText) {
-                centerTo(parent)
-            },
-        )
-
-        Box(
-            modifier
-                .constrainAs(refDivider) {
-                    height = Dimension.matchParent
-                    width = Dimension.value(1.dp)
-                    end.linkTo(parent.end)
-                }
-                .background(MaterialTheme.colorScheme.outlineVariant)
+            modifier = Modifier.align(Alignment.Center),
         )
     }
 }

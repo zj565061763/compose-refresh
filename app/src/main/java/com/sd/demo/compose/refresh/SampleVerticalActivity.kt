@@ -42,7 +42,7 @@ private fun ContentView(
 
     // 顶部刷新
     val topRefreshState = rememberFRefreshStateTop {
-        vm.refresh(20)
+        vm.refresh(10)
     }
 
     // 底部刷新
@@ -51,7 +51,7 @@ private fun ContentView(
     }
 
     LaunchedEffect(vm) {
-        vm.refresh(20)
+        vm.refresh(10)
     }
 
     Box(
@@ -62,10 +62,7 @@ private fun ContentView(
             // 底部
             .nestedScroll(bottomRefreshState.nestedScrollConnection)
     ) {
-        ColumnView(
-            list = uiState.list,
-            modifier = Modifier.fillMaxSize(),
-        )
+        ColumnView(uiState.list)
 
         // 顶部
         FRefreshContainer(
