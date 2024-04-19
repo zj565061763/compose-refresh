@@ -44,7 +44,7 @@ class PageViewModel : ViewModel() {
             _list.clear()
             repeat(count) { _list.add(it.toString()) }
 
-            _uiState.update { it.copy(list = _list.toList(), isRefreshing = false) }
+            _uiState.update { it.copy(list = _list.toList()) }
         } finally {
             _uiState.update { it.copy(isRefreshing = false) }
         }
@@ -57,7 +57,7 @@ class PageViewModel : ViewModel() {
             delay(1000)
             repeat(10) { _list.add(it.toString()) }
 
-            _uiState.update { it.copy(list = _list.toList(), isLoadingMore = false) }
+            _uiState.update { it.copy(list = _list.toList()) }
         } finally {
             _uiState.update { it.copy(isLoadingMore = false) }
         }
