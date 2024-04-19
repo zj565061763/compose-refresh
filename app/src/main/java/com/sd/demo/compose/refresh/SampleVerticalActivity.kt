@@ -20,7 +20,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.compose.refresh.theme.AppTheme
 import com.sd.lib.compose.refresh.FRefreshContainer
-import com.sd.lib.compose.refresh.rememberFRefreshState
+import com.sd.lib.compose.refresh.rememberFRefreshStateTop
 
 class SampleVerticalActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +42,7 @@ private fun ContentView(
 ) {
     val uiState by vm.uiState.collectAsState()
 
-    val refreshState = rememberFRefreshState {
+    val topRefreshState = rememberFRefreshStateTop {
         vm.refresh(20)
     }
 
@@ -59,7 +59,7 @@ private fun ContentView(
         Box(
             modifier = modifier
                 .weight(1f)
-                .nestedScroll(refreshState.nestedScrollConnection)
+                .nestedScroll(topRefreshState.nestedScrollConnection)
         ) {
             ColumnView(
                 list = uiState.list,
@@ -67,15 +67,15 @@ private fun ContentView(
             )
 
             FRefreshContainer(
-                state = refreshState,
+                state = topRefreshState,
                 isRefreshing = uiState.isRefreshing,
                 modifier = Modifier.align(Alignment.TopCenter),
             )
         }
     }
 
-    LaunchedEffect(refreshState) {
-        snapshotFlow { refreshState.interactionState }
+    LaunchedEffect(topRefreshState) {
+        snapshotFlow { topRefreshState.interactionState }
             .collect {
                 logMsg { "interactionState:$it" }
             }

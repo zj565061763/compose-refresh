@@ -62,8 +62,7 @@ fun FRefreshContainer(
 }
 
 @Composable
-fun rememberFRefreshState(
-    refreshDirection: RefreshDirection = RefreshDirection.Top,
+fun rememberFRefreshStateTop(
     enabled: () -> Boolean = { true },
     onRefresh: () -> Unit,
 ): FRefreshState {
@@ -71,7 +70,7 @@ fun rememberFRefreshState(
     return remember {
         RefreshStateImpl(
             coroutineScope = coroutineScope,
-            refreshDirection = refreshDirection,
+            refreshDirection = RefreshDirection.Top,
             enabled = enabled,
         )
     }.apply {
