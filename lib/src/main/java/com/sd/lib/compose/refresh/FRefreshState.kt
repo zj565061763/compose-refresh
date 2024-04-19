@@ -236,7 +236,7 @@ internal class RefreshStateImpl(
     private fun transformOffset(available: Float, maxDragDistance: Float): Float {
         require(maxDragDistance > 0)
         val currentProgress = (_internalOffset / maxDragDistance).absoluteValue.coerceIn(0f, 1f)
-        val multiplier = (1f - currentProgress).coerceIn(0f, 0.5f)
+        val multiplier = (1f - currentProgress).coerceIn(0f, 0.6f)
         return available * multiplier
     }
 
