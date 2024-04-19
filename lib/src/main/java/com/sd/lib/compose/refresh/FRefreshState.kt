@@ -96,8 +96,20 @@ enum class RefreshDirection {
 }
 
 enum class RefreshInteraction {
-    None, Drag, Refreshing,
-    FlingToRefresh, FlingToNone,
+    /** 原始 */
+    None,
+
+    /** 拖动 */
+    Drag,
+
+    /** 刷新中 */
+    Refreshing,
+
+    /** 滑向刷新的位置 */
+    FlingToRefresh,
+
+    /** 滑向原始的位置 */
+    FlingToNone,
 }
 
 data class RefreshInteractionState(
