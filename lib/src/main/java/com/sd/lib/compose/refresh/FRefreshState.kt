@@ -213,23 +213,27 @@ internal class RefreshStateImpl(
             return null
         }
 
-        val offset = transformOffset(available, maxDragDistance)
-
-        return updateOffset(_internalOffset + offset) { newOffset ->
-            when (newOffset) {
-                0f -> {
-                    if (iGetCurrentInteraction() == RefreshInteraction.Drag) {
-                        setRefreshInteraction(RefreshInteraction.None)
+        when (iGetCurrentInteraction()) {
+            RefreshInteraction.None, RefreshInteraction.Drag -> {
+                val offset = transformOffset(available, maxDragDistance)
+                return updateOffset(_internalOffset + offset) { newOffset ->
+                    when (newOffset) {
+                        0f -> {
+                            if (iGetCurrentInteraction() == RefreshInteraction.Drag) {
+                                setRefreshInteraction(RefreshInteraction.None)
+                            }
+                        }
+                        else -> {
+                            if (iGetCurrentInteraction() == RefreshInteraction.None) {
+                                setRefreshInteraction(RefreshInteraction.Drag)
+                            }
+                        }
                     }
-                }
-                else -> {
-                    if (iGetCurrentInteraction() == RefreshInteraction.None) {
-                        setRefreshInteraction(RefreshInteraction.Drag)
-                    }
+                }.let { updated ->
+                    if (updated) available else null
                 }
             }
-        }.let { updated ->
-            if (updated) available else null
+            else -> return null
         }
     }
 
