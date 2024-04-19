@@ -34,39 +34,86 @@ fun NewDefaultRefreshIndicator(
     padding: PaddingValues = PaddingValues(5.dp),
     shadow: Boolean = true,
 ) {
-    PaddingSizedBox(
+//    PaddingSizedBox(
+//        modifier = modifier,
+//        size = size,
+//        padding = padding,
+//    ) {
+//        CircularBox(
+//            backgroundColor = backgroundColor,
+//            shadow = shadow,
+//        ) {
+//            NewGoogleRefreshIndicator(
+//                isRefreshing = state.isRefreshing,
+//                progress = { state.progress },
+//                contentColor = contentColor,
+//                spinnerSize = spinnerSize,
+//                strokeWidth = strokeWidth,
+//            )
+//        }
+//    }
+
+    WrapperBox(
         modifier = modifier,
         size = size,
         padding = padding,
+        backgroundColor = backgroundColor,
+        shadow = shadow,
     ) {
-        CircularBox(
-            backgroundColor = backgroundColor,
-            shadow = shadow,
-        ) {
-            NewGoogleRefreshIndicator(
-                isRefreshing = state.isRefreshing,
-                progress = { state.progress },
-                contentColor = contentColor,
-                spinnerSize = spinnerSize,
-                strokeWidth = strokeWidth,
-            )
-        }
+        NewGoogleRefreshIndicator(
+            isRefreshing = state.isRefreshing,
+            progress = { state.progress },
+            contentColor = contentColor,
+            spinnerSize = spinnerSize,
+            strokeWidth = strokeWidth,
+        )
     }
 }
 
 @Composable
-private fun PaddingSizedBox(
+private fun WrapperBox(
     modifier: Modifier = Modifier,
     size: Dp,
-    padding: PaddingValues = PaddingValues(5.dp),
+    padding: PaddingValues,
+    backgroundColor: Color,
+    shadow: Boolean,
     content: @Composable () -> Unit,
 ) {
+    val shadowColor = contentColorFor(backgroundColor)
+
     Box(
         modifier = modifier.padding(padding),
         contentAlignment = Alignment.Center,
     ) {
         Box(
-            modifier = Modifier.size(size),
+            modifier = Modifier
+                .size(size)
+                .background(backgroundColor, CircleShape)
+                .let {
+                    if (shadow) {
+                        it.drawBehind {
+                            drawIntoCanvas { canvas ->
+                                val paint = Paint()
+                                with(paint.asFrameworkPaint()) {
+                                    this.color = backgroundColor.toArgb()
+                                    this.setShadowLayer(
+                                        5.dp.toPx(),
+                                        0f,
+                                        0f,
+                                        shadowColor
+                                            .copy(0.2f)
+                                            .toArgb(),
+                                    )
+                                }
+
+                                val outline = CircleShape.createOutline(this.size, this.layoutDirection, this)
+                                canvas.drawOutline(outline, paint)
+                            }
+                        }
+                    } else {
+                        it
+                    }
+                },
             contentAlignment = Alignment.Center
         ) {
             content()

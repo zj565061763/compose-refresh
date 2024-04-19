@@ -36,7 +36,6 @@ class PageViewModel : ViewModel() {
     }
 
     private suspend fun refreshInternal(count: Int) {
-        require(count > 0)
         try {
             _uiState.update { it.copy(isRefreshing = true) }
 
