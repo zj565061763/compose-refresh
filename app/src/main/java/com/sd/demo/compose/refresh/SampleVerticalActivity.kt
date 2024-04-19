@@ -69,6 +69,9 @@ private fun ContentView(
             state = topRefreshState,
             isRefreshing = uiState.isRefreshing,
             modifier = Modifier.align(Alignment.TopCenter),
+            indicator = {
+                NewDefaultRefreshIndicator(state = it)
+            }
         )
 
         // 底部
