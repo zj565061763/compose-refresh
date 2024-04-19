@@ -61,16 +61,77 @@ fun FRefreshContainer(
     }
 }
 
+/**
+ * 顶部刷新
+ */
 @Composable
 fun rememberFRefreshStateTop(
     enabled: () -> Boolean = { true },
     onRefresh: () -> Unit,
 ): FRefreshState {
+    return rememberFRefreshState(
+        refreshDirection = RefreshDirection.Top,
+        enabled = enabled,
+        onRefresh = onRefresh,
+    )
+}
+
+/**
+ * 底部刷新
+ */
+@Composable
+fun rememberFRefreshStateBottom(
+    enabled: () -> Boolean = { true },
+    onRefresh: () -> Unit,
+): FRefreshState {
+    return rememberFRefreshState(
+        refreshDirection = RefreshDirection.Bottom,
+        enabled = enabled,
+        onRefresh = onRefresh,
+    )
+}
+
+/**
+ * 左侧刷新
+ */
+@Composable
+fun rememberFRefreshStateLeft(
+    enabled: () -> Boolean = { true },
+    onRefresh: () -> Unit,
+): FRefreshState {
+    return rememberFRefreshState(
+        refreshDirection = RefreshDirection.Left,
+        enabled = enabled,
+        onRefresh = onRefresh,
+    )
+}
+
+/**
+ * 右侧刷新
+ */
+@Composable
+fun rememberFRefreshStateRight(
+    enabled: () -> Boolean = { true },
+    onRefresh: () -> Unit,
+): FRefreshState {
+    return rememberFRefreshState(
+        refreshDirection = RefreshDirection.Right,
+        enabled = enabled,
+        onRefresh = onRefresh,
+    )
+}
+
+@Composable
+private fun rememberFRefreshState(
+    refreshDirection: RefreshDirection,
+    enabled: () -> Boolean = { true },
+    onRefresh: () -> Unit,
+): FRefreshState {
     val coroutineScope = rememberCoroutineScope()
-    return remember {
+    return remember(refreshDirection) {
         RefreshStateImpl(
             coroutineScope = coroutineScope,
-            refreshDirection = RefreshDirection.Top,
+            refreshDirection = refreshDirection,
             enabled = enabled,
         )
     }.apply {
