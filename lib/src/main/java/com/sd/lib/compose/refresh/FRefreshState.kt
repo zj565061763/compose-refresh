@@ -251,11 +251,10 @@ internal class RefreshStateImpl(
         if (iGetCurrentInteraction() == RefreshInteraction.Drag) {
             cancelNotifyCallbackJob()
             if (iReachRefreshThreshold()) {
-                if (animateToRefreshing()) {
-                    _notifyCallbackJob = currentCoroutineContext()[Job]
-                    _onRefreshCallback?.invoke()
-                    delay(Long.MAX_VALUE)
-                }
+                animateToRefreshing()
+                _notifyCallbackJob = currentCoroutineContext()[Job]
+                _onRefreshCallback?.invoke()
+                delay(Long.MAX_VALUE)
             }
             animateToReset()
             return available
@@ -267,11 +266,8 @@ internal class RefreshStateImpl(
         _notifyCallbackJob?.cancel()
     }
 
-    private suspend fun animateToRefreshing(): Boolean {
-        val targetOffset = iGetRefreshingOffset()
-        if (targetOffset == 0f) return false
-        animateToOffset(targetOffset, RefreshInteraction.Refreshing)
-        return true
+    private suspend fun animateToRefreshing() {
+        animateToOffset(iGetRefreshingOffset(), RefreshInteraction.Refreshing)
     }
 
     private suspend fun animateToReset() {
