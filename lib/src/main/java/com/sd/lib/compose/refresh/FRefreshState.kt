@@ -23,8 +23,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.Collections
 import kotlin.math.absoluteValue
@@ -421,13 +419,17 @@ internal class RefreshStateImpl(
     }
 
     init {
-        snapshotFlow { refreshingDistance }
-            .filter { it > 0 }
-            .distinctUntilChanged()
-            .onEach {
-                if (iRefreshing()) {
-                    showRefresh()
+        coroutineScope.launch(_stateDispatcher) {
+            snapshotFlow { refreshingDistance }
+                .filter { it > 0 }
+                .distinctUntilChanged()
+                .collect {
+                    when (iGetCurrentInteraction()) {
+                        RefreshInteraction.Refreshing -> updateOffset(iGetRefreshingDistance())
+                        RefreshInteraction.FlingToRefresh -> animateToRefreshing()
+                        else -> {}
+                    }
                 }
-            }.launchIn(coroutineScope)
+        }
     }
 }
