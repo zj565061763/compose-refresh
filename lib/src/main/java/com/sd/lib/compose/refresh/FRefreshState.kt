@@ -420,7 +420,7 @@ internal class RefreshStateImpl(
                 .distinctUntilChanged()
                 .collect {
                     if (iRefreshing()) {
-                        showRefresh()
+                        animateToRefreshing()
                     }
                 }
         }
