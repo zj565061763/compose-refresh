@@ -163,12 +163,7 @@ internal class RefreshStateImpl(
 
     override fun showRefresh() {
         coroutineScope.launch(_dispatcher) {
-            if (iGetCurrentInteraction() == RefreshInteraction.None) {
-                updateOffset(iGetRefreshingOffset())
-                setRefreshInteraction(RefreshInteraction.Refreshing)
-            } else {
-                animateToRefreshing()
-            }
+            animateToRefreshing()
         }
     }
 
@@ -424,10 +419,8 @@ internal class RefreshStateImpl(
                 .filter { it > 0 }
                 .distinctUntilChanged()
                 .collect {
-                    when (iGetCurrentInteraction()) {
-                        RefreshInteraction.Refreshing -> updateOffset(iGetRefreshingDistance())
-                        RefreshInteraction.FlingToRefresh -> animateToRefreshing()
-                        else -> {}
+                    if (iRefreshing()) {
+                        showRefresh()
                     }
                 }
         }
