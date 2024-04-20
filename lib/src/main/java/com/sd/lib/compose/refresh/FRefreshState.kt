@@ -123,7 +123,7 @@ internal class RefreshStateImpl(
     override val refreshDirection: RefreshDirection,
     enabled: () -> Boolean,
 ) : FRefreshState {
-    private val _stateDispatcher = Dispatchers.Main.immediate
+    private val _dispatcher = Dispatchers.Main.immediate
 
     override val isRefreshing: Boolean by derivedStateOf { iRefreshing() }
     override val currentInteraction: RefreshInteraction by derivedStateOf { iGetCurrentInteraction() }
@@ -162,7 +162,7 @@ internal class RefreshStateImpl(
     )
 
     override fun showRefresh() {
-        coroutineScope.launch(_stateDispatcher) {
+        coroutineScope.launch(_dispatcher) {
             if (iGetCurrentInteraction() == RefreshInteraction.None) {
                 updateOffset(iGetRefreshingOffset())
                 setRefreshInteraction(RefreshInteraction.Refreshing)
@@ -173,7 +173,7 @@ internal class RefreshStateImpl(
     }
 
     override fun hideRefresh() {
-        coroutineScope.launch(_stateDispatcher) {
+        coroutineScope.launch(_dispatcher) {
             cancelNotifyCallbackJob()
             if (iRefreshing()) {
                 _hideRefreshingCallbacks.toTypedArray().forEach {
@@ -419,7 +419,7 @@ internal class RefreshStateImpl(
     }
 
     init {
-        coroutineScope.launch(_stateDispatcher) {
+        coroutineScope.launch(_dispatcher) {
             snapshotFlow { refreshingDistance }
                 .filter { it > 0 }
                 .distinctUntilChanged()
