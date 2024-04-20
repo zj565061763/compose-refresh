@@ -27,9 +27,11 @@ fun FRefreshContainer(
 ) {
     check(state is RefreshStateImpl)
 
-    var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var containerSize by remember { mutableStateOf<IntSize?>(null) }
 
-    state.setContainerSize(containerSize)
+    containerSize?.let { size ->
+        state.setContainerSize(size)
+    }
 
     if (isRefreshing != null) {
         LaunchedEffect(isRefreshing) {

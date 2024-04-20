@@ -64,7 +64,7 @@ interface FRefreshState {
     val reachRefreshThreshold: Boolean
 
     /** 容器大小 */
-    val containerSize: IntSize
+    val containerSize: IntSize?
 
     /**
      * 显示刷新状态
@@ -136,14 +136,14 @@ internal class RefreshStateImpl(
     override val refreshThreshold: Float by derivedStateOf { iGetRefreshThreshold() }
     override val refreshingDistance: Float by derivedStateOf { iGetRefreshingDistance() }
     override val reachRefreshThreshold: Boolean by derivedStateOf { iReachRefreshThreshold() }
-    override val containerSize: IntSize get() = _containerSizeState
+    override val containerSize: IntSize? get() = _containerSizeState
 
     /** 互动状态 */
     private var _interactionState by mutableStateOf(RefreshInteractionState())
     /** 当前偏移量 */
     private var _offsetState by mutableFloatStateOf(0f)
     /** 容器大小 */
-    private var _containerSizeState by mutableStateOf(IntSize.Zero)
+    private var _containerSizeState by mutableStateOf<IntSize?>(null)
     /** 可以刷新的距离 */
     private var _refreshThresholdState by mutableStateOf<Float?>(null)
     /** 刷新中状态的距离 */
@@ -237,7 +237,10 @@ internal class RefreshStateImpl(
         }
     }
 
-    private fun transformOffset(available: Float, maxDragDistance: Float): Float {
+    private fun transformOffset(
+        available: Float,
+        maxDragDistance: Float,
+    ): Float {
         require(maxDragDistance > 0)
         val currentProgress = (_internalOffset / maxDragDistance).absoluteValue.coerceIn(0f, 1f)
         val multiplier = (1f - currentProgress).coerceIn(0f, 0.6f)
@@ -275,7 +278,10 @@ internal class RefreshStateImpl(
         animateToOffset(0f, RefreshInteraction.None)
     }
 
-    private suspend fun animateToOffset(offset: Float, flingEnd: RefreshInteraction) {
+    private suspend fun animateToOffset(
+        offset: Float,
+        flingEnd: RefreshInteraction,
+    ) {
         if (iGetCurrentInteraction() == flingEnd) {
             if (_animOffset.isRunning) {
                 if (_animOffset.targetValue == offset) return
@@ -379,13 +385,16 @@ internal class RefreshStateImpl(
 
     private fun iGetContainerSize(): Int {
         return when (refreshDirection) {
-            RefreshDirection.Top, RefreshDirection.Bottom -> _containerSizeState.height
-            RefreshDirection.Left, RefreshDirection.Right -> _containerSizeState.width
+            RefreshDirection.Top, RefreshDirection.Bottom -> _containerSizeState?.height ?: 0
+            RefreshDirection.Left, RefreshDirection.Right -> _containerSizeState?.width ?: 0
         }
     }
 
     override val nestedScrollConnection = object : NestedScrollConnection {
-        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        override fun onPreScroll(
+            available: Offset,
+            source: NestedScrollSource,
+        ): Offset {
             return when {
                 !enabled() -> Offset.Zero
                 source == NestedScrollSource.Drag -> _directionHandler.handlePreScroll(available)
@@ -393,7 +402,11 @@ internal class RefreshStateImpl(
             }
         }
 
-        override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+        override fun onPostScroll(
+            consumed: Offset,
+            available: Offset,
+            source: NestedScrollSource,
+        ): Offset {
             return when {
                 !enabled() -> Offset.Zero
                 source == NestedScrollSource.Drag -> _directionHandler.handlePostScroll(available)
