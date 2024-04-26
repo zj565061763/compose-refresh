@@ -257,7 +257,7 @@ internal class RefreshStateImpl(
                 animateToRefreshing()
                 _notifyCallbackJob = currentCoroutineContext()[Job]
                 _onRefreshCallback?.invoke()
-                delay(Long.MAX_VALUE)
+                delay(100)
             }
             animateToReset()
             return available
