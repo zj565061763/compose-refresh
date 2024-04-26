@@ -94,12 +94,6 @@ interface FRefreshState {
      * 取消注册隐藏刷新回调
      */
     fun unregisterHideRefreshing(callback: suspend () -> Unit)
-
-    interface TransformOffsetScope {
-        val currentOffset: Float
-
-        val maxDragDistance: Float
-    }
 }
 
 enum class RefreshDirection {
