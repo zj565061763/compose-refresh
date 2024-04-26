@@ -24,6 +24,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Collections
 import kotlin.math.absoluteValue
 
@@ -158,7 +159,11 @@ internal class RefreshStateImpl(
     private val _directionHandler = DirectionHandler(
         refreshDirection = refreshDirection,
         onScroll = { handleScroll(it) },
-        onFling = { handleFling(it) },
+        onFling = {
+            withContext(_dispatcher) {
+                handleFling(it)
+            }
+        },
     )
 
     override fun showRefresh() {
