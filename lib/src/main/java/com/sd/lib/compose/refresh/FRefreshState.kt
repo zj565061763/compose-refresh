@@ -32,7 +32,7 @@ interface FRefreshState {
     /** 刷新方向，该值不会改变 */
     val refreshDirection: RefreshDirection
 
-    /** 是否刷新中状态 */
+    /** 是否刷新中[RefreshInteraction.Refreshing]或者即将刷新[RefreshInteraction.FlingToRefresh] */
     val isRefreshing: Boolean
 
     /** 当前互动状态 */
