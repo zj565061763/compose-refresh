@@ -85,8 +85,14 @@ interface FRefreshState {
      */
     fun setRefreshingDistance(value: Float?)
 
+    /**
+     * 注册隐藏刷新回调
+     */
     fun registerHideRefreshing(callback: suspend () -> Unit)
 
+    /**
+     * 取消注册隐藏刷新回调
+     */
     fun unregisterHideRefreshing(callback: suspend () -> Unit)
 }
 
