@@ -51,7 +51,7 @@ interface FRefreshState {
     @get:FloatRange(from = 0.0)
     val progress: Float
 
-    /** 可以刷新的距离 */
+    /** 可以触发刷新的距离 */
     @get:FloatRange(from = 0.0)
     val refreshThreshold: Float
 
@@ -59,7 +59,7 @@ interface FRefreshState {
     @get:FloatRange(from = 0.0)
     val refreshingDistance: Float
 
-    /** 是否已经达到可以刷新的距离 */
+    /** 是否已经达到可以触发刷新的距离 */
     val reachRefreshThreshold: Boolean
 
     /** 容器大小 */
