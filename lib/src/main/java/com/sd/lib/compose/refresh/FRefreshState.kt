@@ -47,7 +47,7 @@ interface FRefreshState {
     /** 当前偏移量 */
     val offset: Float
 
-    /** 拖动距离 */
+    /** [offset] / [reachRefreshThreshold] */
     @get:FloatRange(from = 0.0)
     val progress: Float
 
@@ -94,6 +94,12 @@ interface FRefreshState {
      * 取消注册隐藏刷新回调
      */
     fun unregisterHideRefreshing(callback: suspend () -> Unit)
+
+    interface TransformOffsetScope {
+        val currentOffset: Float
+
+        val maxDragDistance: Float
+    }
 }
 
 enum class RefreshDirection {
@@ -149,7 +155,7 @@ internal class RefreshStateImpl(
     private var _offsetState by mutableFloatStateOf(0f)
     /** 容器大小 */
     private var _containerSizeState by mutableStateOf<IntSize?>(null)
-    /** 可以刷新的距离 */
+    /** 可以触发刷新的距离 */
     private var _refreshThresholdState by mutableStateOf<Float?>(null)
     /** 刷新中状态的距离 */
     private var _refreshingDistanceState by mutableStateOf<Float?>(null)
