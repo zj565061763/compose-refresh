@@ -37,7 +37,7 @@ fun DefaultRefreshIndicator(
     state: FRefreshState,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
-    contentColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     strokeWidth: Dp = 2.dp,
     size: Dp = 40.dp,
     spinnerSize: Dp = size.times(0.5f),
