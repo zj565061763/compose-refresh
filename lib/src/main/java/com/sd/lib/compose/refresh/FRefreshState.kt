@@ -174,6 +174,7 @@ internal class RefreshStateImpl(
 
     override fun showRefresh() {
         coroutineScope.launch(_dispatcher) {
+            cancelNotifyCallbackJob()
             animateToRefreshing()
         }
     }
