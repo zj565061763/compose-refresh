@@ -276,6 +276,12 @@ internal class RefreshStateImpl(
         offset: Float,
         flingEnd: RefreshInteraction,
     ) {
+        val flingInteraction = when (flingEnd) {
+            RefreshInteraction.None -> RefreshInteraction.FlingToNone
+            RefreshInteraction.Refreshing -> RefreshInteraction.FlingToRefresh
+            else -> error("Illegal flingEnd:$flingEnd")
+        }
+
         if (iGetCurrentInteraction() == flingEnd) {
             if (_animOffset.isRunning) {
                 if (_animOffset.targetValue == offset) return
@@ -285,14 +291,7 @@ internal class RefreshStateImpl(
         }
 
         currentCoroutineContext().ensureActive()
-
-        when (flingEnd) {
-            RefreshInteraction.None -> RefreshInteraction.FlingToNone
-            RefreshInteraction.Refreshing -> RefreshInteraction.FlingToRefresh
-            else -> error("Illegal flingEnd:$flingEnd")
-        }.also {
-            setRefreshInteraction(it)
-        }
+        setRefreshInteraction(flingInteraction)
 
         _animOffset.snapTo(_internalOffset)
         _animOffset.animateTo(offset) { updateOffset(value) }
