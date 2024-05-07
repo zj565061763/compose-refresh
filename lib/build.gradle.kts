@@ -6,7 +6,7 @@ plugins {
 
 val libGroupId = "com.sd.lib.android"
 val libArtifactId = "compose-refresh"
-val libVersionName = "1.0.0-alpha05"
+val libVersionName = "1.0.0-beta01"
 
 android {
     namespace = "com.sd.lib.compose.refresh"
