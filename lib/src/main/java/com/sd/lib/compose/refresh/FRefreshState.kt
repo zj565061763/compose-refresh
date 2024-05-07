@@ -207,7 +207,7 @@ internal class RefreshStateImpl(
         _hideRefreshingCallbacks.remove(callback)
     }
 
-    internal fun setContainerSize(size: IntSize) {
+    internal fun setContainerSize(size: IntSize?) {
         _containerSizeState = size
     }
 

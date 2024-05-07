@@ -29,9 +29,7 @@ fun FRefreshContainer(
 
     var containerSize by remember { mutableStateOf<IntSize?>(null) }
 
-    containerSize?.let { size ->
-        state.setContainerSize(size)
-    }
+    state.setContainerSize(containerSize)
 
     if (isRefreshing != null) {
         LaunchedEffect(isRefreshing) {
@@ -129,7 +127,7 @@ private fun rememberFRefreshState(
     onRefresh: () -> Unit,
 ): FRefreshState {
     val coroutineScope = rememberCoroutineScope()
-    return remember(refreshDirection) {
+    return remember(refreshDirection, enabled, coroutineScope) {
         RefreshStateImpl(
             coroutineScope = coroutineScope,
             refreshDirection = refreshDirection,
