@@ -14,7 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 
 @SuppressLint("ModifierParameter")
@@ -90,31 +92,29 @@ fun rememberFRefreshStateBottom(
    )
 }
 
-/**
- * 左侧刷新
- */
 @Composable
-fun rememberFRefreshStateLeft(
+fun rememberFRefreshStateStart(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
+   val layoutDirection = LocalLayoutDirection.current
+   val refreshDirection = if (layoutDirection == LayoutDirection.Ltr) RefreshDirection.Start else RefreshDirection.End
    return rememberFRefreshState(
-      refreshDirection = RefreshDirection.Start,
+      refreshDirection = refreshDirection,
       enabled = enabled,
       onRefresh = onRefresh,
    )
 }
 
-/**
- * 右侧刷新
- */
 @Composable
-fun rememberFRefreshStateRight(
+fun rememberFRefreshStateEnd(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
+   val layoutDirection = LocalLayoutDirection.current
+   val refreshDirection = if (layoutDirection == LayoutDirection.Ltr) RefreshDirection.End else RefreshDirection.Start
    return rememberFRefreshState(
-      refreshDirection = RefreshDirection.End,
+      refreshDirection = refreshDirection,
       enabled = enabled,
       onRefresh = onRefresh,
    )
