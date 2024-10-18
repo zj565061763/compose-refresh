@@ -1,7 +1,5 @@
 package com.sd.lib.compose.refresh
 
-import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,7 +17,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 
-@SuppressLint("ModifierParameter")
 @Composable
 fun FRefreshContainer(
    state: FRefreshState,
@@ -162,8 +159,4 @@ private fun rememberFRefreshState(
       setEnabled(enabled)
       setRefreshCallback(onRefresh)
    }
-}
-
-internal inline fun logMsg(block: () -> String) {
-   Log.i("FRefresh", block())
 }
