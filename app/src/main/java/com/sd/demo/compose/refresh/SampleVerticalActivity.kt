@@ -18,6 +18,7 @@ import com.sd.demo.compose.refresh.theme.AppTheme
 import com.sd.lib.compose.refresh.FRefreshContainer
 import com.sd.lib.compose.refresh.rememberFRefreshStateBottom
 import com.sd.lib.compose.refresh.rememberFRefreshStateTop
+import com.sd.lib.compose.refresh.setRefreshing
 
 class SampleVerticalActivity : ComponentActivity() {
    override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,8 +40,11 @@ private fun ContentView(
 
    // top
    val topRefreshState = rememberFRefreshStateTop { vm.refresh(10) }
+   topRefreshState.setRefreshing(uiState.isRefreshing)
+
    // bottom
    val bottomRefreshState = rememberFRefreshStateBottom { vm.loadMore() }
+   bottomRefreshState.setRefreshing(uiState.isLoadingMore)
 
    LaunchedEffect(vm) {
       vm.refresh(10)
@@ -59,14 +63,12 @@ private fun ContentView(
       // top
       FRefreshContainer(
          state = topRefreshState,
-         isRefreshing = uiState.isRefreshing,
          modifier = Modifier.align(Alignment.TopCenter),
       )
 
       // bottom
       FRefreshContainer(
          state = bottomRefreshState,
-         isRefreshing = uiState.isLoadingMore,
          modifier = Modifier.align(Alignment.BottomCenter),
       )
    }

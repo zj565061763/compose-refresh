@@ -1,5 +1,6 @@
 package com.sd.lib.compose.refresh
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,20 +21,16 @@ import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 @Composable
 fun FRefreshContainer(
    state: FRefreshState,
-   isRefreshing: Boolean?,
    modifier: Modifier = Modifier,
    indicator: @Composable (FRefreshState) -> Unit = { DefaultRefreshIndicator(state = state) },
 ) {
    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-   if (isRefreshing != null) {
-      LaunchedEffect(isRefreshing) {
-         if (isRefreshing) {
-            state.showRefresh()
-         } else {
-            state.hideRefresh()
-         }
-      }
+   when (state.refreshDirection) {
+      RefreshDirection.Top, RefreshDirection.Bottom -> containerSize.height
+      RefreshDirection.Left, RefreshDirection.Right -> containerSize.width
+   }.let {
+      state.setRefreshThreshold(it.toFloat())
    }
 
    Box(
@@ -53,6 +50,18 @@ fun FRefreshContainer(
       contentAlignment = Alignment.Center,
    ) {
       indicator(state)
+   }
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun FRefreshState.setRefreshing(isRefreshing: Boolean) {
+   LaunchedEffect(isRefreshing) {
+      if (isRefreshing) {
+         showRefresh()
+      } else {
+         hideRefresh()
+      }
    }
 }
 

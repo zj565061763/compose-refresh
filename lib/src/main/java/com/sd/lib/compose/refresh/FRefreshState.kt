@@ -256,6 +256,11 @@ internal class RefreshStateImpl(
    private fun setRefreshInteraction(current: RefreshInteraction) {
       val state = _interactionState
       if (state.current == current) return
+
+      if (current == RefreshInteraction.None) {
+         _offset = 0f
+      }
+
       _interactionState = state.copy(
          previous = state.current,
          current = current,
