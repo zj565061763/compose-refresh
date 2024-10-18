@@ -221,12 +221,12 @@ internal class RefreshStateImpl(
          return null
       }
 
-      when (iGetCurrentInteraction()) {
+      return when (iGetCurrentInteraction()) {
          RefreshInteraction.None,
          RefreshInteraction.Drag,
             -> {
             val offset = transformOffset(available, threshold)
-            return updateOffset(_internalOffset + offset) { newOffset ->
+            val updated = updateOffset(_internalOffset + offset) { newOffset ->
                when (newOffset) {
                   0f -> {
                      if (iGetCurrentInteraction() == RefreshInteraction.Drag) {
@@ -239,11 +239,10 @@ internal class RefreshStateImpl(
                      }
                   }
                }
-            }.let { updated ->
-               if (updated) available else null
             }
+            if (updated) available else null
          }
-         else -> return null
+         else -> null
       }
    }
 
