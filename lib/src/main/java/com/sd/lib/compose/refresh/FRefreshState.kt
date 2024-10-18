@@ -128,7 +128,7 @@ internal class RefreshStateImpl(
    override val refreshDirection: RefreshDirection,
 ) : FRefreshState {
    private var _enabled = false
-   private val _dispatcher = Dispatchers.Main.immediate
+   private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrDefault(Dispatchers.Main)
 
    override val isRefreshing: Boolean by derivedStateOf { iRefreshing() }
    override val currentInteraction: RefreshInteraction by derivedStateOf { iGetCurrentInteraction() }
