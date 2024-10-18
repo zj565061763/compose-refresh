@@ -222,7 +222,9 @@ internal class RefreshStateImpl(
       }
 
       when (iGetCurrentInteraction()) {
-         RefreshInteraction.None, RefreshInteraction.Drag -> {
+         RefreshInteraction.None,
+         RefreshInteraction.Drag,
+            -> {
             val offset = transformOffset(available, threshold)
             return updateOffset(_internalOffset + offset) { newOffset ->
                when (newOffset) {
