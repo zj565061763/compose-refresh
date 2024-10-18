@@ -125,7 +125,10 @@ internal class RefreshStateImpl(
 
    override fun showRefresh() {
       coroutineScope.launch(_dispatcher) {
-         animateToRefresh()
+         if (currentInteraction != RefreshInteraction.Refreshing) {
+            animateToRefresh()
+            setRefreshInteraction(RefreshInteraction.Refreshing)
+         }
       }
    }
 
@@ -216,29 +219,28 @@ internal class RefreshStateImpl(
    private suspend fun handleFling(available: Float): Float? {
       if (currentInteraction == RefreshInteraction.Drag) {
          if (_progressState >= 1f) {
-            animateToRefresh(setRefreshing = false)
+            animateToRefresh()
             _onRefreshCallback?.invoke()
          } else {
             animateToReset()
          }
+         // TODO review consumed
          return available
       }
       return null
    }
 
-   private suspend fun animateToRefresh(setRefreshing: Boolean = true) {
-      if (currentInteraction == RefreshInteraction.FlingToRefresh) return
-      if (currentInteraction == RefreshInteraction.Refreshing) return
-      setRefreshInteraction(RefreshInteraction.FlingToRefresh)
-      animateToProgress(1f)
-      if (setRefreshing) {
-         setRefreshInteraction(RefreshInteraction.Refreshing)
+   private suspend fun animateToRefresh() {
+      if (_progressState != 1f) {
+         setRefreshInteraction(RefreshInteraction.FlingToRefresh)
       }
+      animateToProgress(1f)
    }
 
    private suspend fun animateToReset() {
-      if (currentInteraction == RefreshInteraction.None) return
-      setRefreshInteraction(RefreshInteraction.FlingToNone)
+      if (_progressState != 0f) {
+         setRefreshInteraction(RefreshInteraction.FlingToNone)
+      }
       animateToProgress(0f)
       setRefreshInteraction(RefreshInteraction.None)
    }
