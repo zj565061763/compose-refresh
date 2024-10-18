@@ -97,7 +97,7 @@ interface FRefreshState {
 }
 
 enum class RefreshDirection {
-    Top, Bottom, Left, Right,
+    Top, Bottom, Start, End,
 }
 
 enum class RefreshInteraction {
@@ -316,8 +316,8 @@ internal class RefreshStateImpl(
         onChange: (Float) -> Unit = {},
     ): Boolean {
         val newOffset = when (refreshDirection) {
-            RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
-            RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
+            RefreshDirection.Top, RefreshDirection.Start -> offset.coerceAtLeast(0f)
+            RefreshDirection.Bottom, RefreshDirection.End -> offset.coerceAtMost(0f)
         }
 
         return if (_internalOffset != newOffset) {
@@ -371,8 +371,8 @@ internal class RefreshStateImpl(
     private fun iGetRefreshingOffset(): Float {
         val distance = iGetRefreshingDistance()
         return when (refreshDirection) {
-            RefreshDirection.Top, RefreshDirection.Left -> distance
-            RefreshDirection.Bottom, RefreshDirection.Right -> -distance
+            RefreshDirection.Top, RefreshDirection.Start -> distance
+            RefreshDirection.Bottom, RefreshDirection.End -> -distance
         }
     }
 
@@ -391,7 +391,7 @@ internal class RefreshStateImpl(
     private fun iGetContainerSize(): Int {
         return when (refreshDirection) {
             RefreshDirection.Top, RefreshDirection.Bottom -> _containerSizeState?.height ?: 0
-            RefreshDirection.Left, RefreshDirection.Right -> _containerSizeState?.width ?: 0
+            RefreshDirection.Start, RefreshDirection.End -> _containerSizeState?.width ?: 0
         }
     }
 

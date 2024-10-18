@@ -50,8 +50,8 @@ fun FRefreshContainer(
                 when (state.refreshDirection) {
                     RefreshDirection.Top -> translationY = state.offset - size.height
                     RefreshDirection.Bottom -> translationY = state.offset + size.height
-                    RefreshDirection.Left -> translationX = state.offset - size.width
-                    RefreshDirection.Right -> translationX = state.offset + size.width
+                    RefreshDirection.Start -> translationX = state.offset - size.width
+                    RefreshDirection.End -> translationX = state.offset + size.width
                 }
             },
         contentAlignment = Alignment.Center,
@@ -99,9 +99,9 @@ fun rememberFRefreshStateLeft(
     onRefresh: () -> Unit,
 ): FRefreshState {
     return rememberFRefreshState(
-        refreshDirection = RefreshDirection.Left,
-        enabled = enabled,
-        onRefresh = onRefresh,
+       refreshDirection = RefreshDirection.Start,
+       enabled = enabled,
+       onRefresh = onRefresh,
     )
 }
 
@@ -114,7 +114,7 @@ fun rememberFRefreshStateRight(
     onRefresh: () -> Unit,
 ): FRefreshState {
     return rememberFRefreshState(
-        refreshDirection = RefreshDirection.Right,
+        refreshDirection = RefreshDirection.End,
         enabled = enabled,
         onRefresh = onRefresh,
     )

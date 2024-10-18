@@ -77,9 +77,9 @@ fun DefaultRefreshIndicator(
             modifier = Modifier.graphicsLayer {
                 this.rotationZ = when (state.refreshDirection) {
                     RefreshDirection.Top -> 0f
-                    RefreshDirection.Right -> 90f
+                    RefreshDirection.End -> 90f
                     RefreshDirection.Bottom -> 180f
-                    RefreshDirection.Left -> 270f
+                    RefreshDirection.Start -> 270f
                 }
             },
             isRefreshing = state.isRefreshing,

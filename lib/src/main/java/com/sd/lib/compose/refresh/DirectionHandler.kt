@@ -42,28 +42,28 @@ private abstract class BaseDirectionHandler(
     private fun unpackOffset(value: Offset): Float {
         return when (refreshDirection) {
             RefreshDirection.Top, RefreshDirection.Bottom -> value.y
-            RefreshDirection.Left, RefreshDirection.Right -> value.x
+            RefreshDirection.Start, RefreshDirection.End -> value.x
         }
     }
 
     private fun packOffset(value: Float): Offset {
         return when (refreshDirection) {
             RefreshDirection.Top, RefreshDirection.Bottom -> Offset(0f, value)
-            RefreshDirection.Left, RefreshDirection.Right -> Offset(value, 0f)
+            RefreshDirection.Start, RefreshDirection.End -> Offset(value, 0f)
         }
     }
 
     private fun unpackVelocity(value: Velocity): Float {
         return when (refreshDirection) {
             RefreshDirection.Top, RefreshDirection.Bottom -> value.y
-            RefreshDirection.Left, RefreshDirection.Right -> value.x
+            RefreshDirection.Start, RefreshDirection.End -> value.x
         }
     }
 
     private fun packVelocity(value: Float): Velocity {
         return when (refreshDirection) {
             RefreshDirection.Top, RefreshDirection.Bottom -> Velocity(0f, value)
-            RefreshDirection.Left, RefreshDirection.Right -> Velocity(value, 0f)
+            RefreshDirection.Start, RefreshDirection.End -> Velocity(value, 0f)
         }
     }
 
@@ -98,15 +98,15 @@ private class DirectionHandlerImpl(
 
     private fun isOut(available: Float): Boolean {
         return when (refreshDirection) {
-            RefreshDirection.Top, RefreshDirection.Left -> available > 0
-            RefreshDirection.Bottom, RefreshDirection.Right -> available < 0
+            RefreshDirection.Top, RefreshDirection.Start -> available > 0
+            RefreshDirection.Bottom, RefreshDirection.End -> available < 0
         }
     }
 
     private fun isBack(available: Float): Boolean {
         return when (refreshDirection) {
-            RefreshDirection.Top, RefreshDirection.Left -> available < 0
-            RefreshDirection.Bottom, RefreshDirection.Right -> available > 0
+            RefreshDirection.Top, RefreshDirection.Start -> available < 0
+            RefreshDirection.Bottom, RefreshDirection.End -> available > 0
         }
     }
 }
