@@ -181,20 +181,19 @@ internal class RefreshStateImpl(
                }
             }
 
+            if (newOffset != 0f) {
+               if (currentInteraction == RefreshInteraction.None) {
+                  setRefreshInteraction(RefreshInteraction.Drag)
+               }
+            }
+
             val consumed = newOffset - _offset
             _offset = newOffset
             _progressState = newOffset / threshold
 
-            when (newOffset) {
-               0f -> {
-                  if (currentInteraction == RefreshInteraction.Drag) {
-                     setRefreshInteraction(RefreshInteraction.None)
-                  }
-               }
-               else -> {
-                  if (currentInteraction == RefreshInteraction.None) {
-                     setRefreshInteraction(RefreshInteraction.Drag)
-                  }
+            if (newOffset == 0f) {
+               if (currentInteraction == RefreshInteraction.Drag) {
+                  setRefreshInteraction(RefreshInteraction.None)
                }
             }
 
