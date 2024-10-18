@@ -2,27 +2,18 @@ package com.sd.lib.compose.refresh
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Collections
@@ -32,6 +23,9 @@ interface FRefreshState {
    /** 嵌套滚动对象，外部需要把此对象传给[Modifier.nestedScroll] */
    val nestedScrollConnection: NestedScrollConnection
 
+   @get:FloatRange(from = 0.0)
+   val progress: Float
+
    /** 当前互动状态 */
    val currentInteraction: RefreshInteraction
 
@@ -40,25 +34,6 @@ interface FRefreshState {
 
    /** 刷新方向 */
    val refreshDirection: RefreshDirection
-
-   /** [offset] / [refreshThreshold] */
-   @get:FloatRange(from = 0.0)
-   val progress: Float
-
-   /** 当前偏移量 */
-   val offset: Float
-
-   /** 可以触发刷新的距离，默认为容器的大小 */
-   val refreshThreshold: Float
-
-   /** 刷新中状态的距离，默认为容器的大小 */
-   val refreshingDistance: Float
-
-   /** 是否已经达到可以触发刷新的距离 */
-   val reachRefreshThreshold: Boolean
-
-   /** 容器大小 */
-   val containerSize: IntSize?
 
    /**
     * 显示刷新状态
@@ -71,14 +46,9 @@ interface FRefreshState {
    fun hideRefresh()
 
    /**
-    * 设置[refreshThreshold]
+    * 设置可以触发刷新的距离
     */
-   fun setRefreshThreshold(value: Float?)
-
-   /**
-    * 设置[refreshingDistance]
-    */
-   fun setRefreshingDistance(value: Float?)
+   fun setRefreshThreshold(value: Float)
 
    /**
     * 注册隐藏刷新回调
@@ -102,11 +72,11 @@ enum class RefreshInteraction {
    /** 拖动 */
    Drag,
 
+   /** 正在滑向刷新位置 */
+   FlingToRefresh,
+
    /** 刷新中 */
    Refreshing,
-
-   /** 滑向刷新的位置 */
-   FlingToRefresh,
 
    /** 滑向原始的位置 */
    FlingToNone,
@@ -127,33 +97,20 @@ internal class RefreshStateImpl(
    private var _enabled = false
    private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrDefault(Dispatchers.Main)
 
-   override val currentInteraction: RefreshInteraction by derivedStateOf { iGetCurrentInteraction() }
+   override val progress: Float get() = _progressState
+   override val currentInteraction: RefreshInteraction get() = _interactionState.current
    override val interactionState: RefreshInteractionState get() = _interactionState
 
-   override val offset: Float get() = _offsetState
-   override val progress: Float by derivedStateOf { iGetProgress() }
-   override val refreshThreshold: Float by derivedStateOf { iGetRefreshThreshold() }
-   override val refreshingDistance: Float by derivedStateOf { iGetRefreshingDistance() }
-   override val reachRefreshThreshold: Boolean by derivedStateOf { iReachRefreshThreshold() }
-   override val containerSize: IntSize? get() = _containerSizeState
+   private val _anim = Animatable(0f)
+   private var _offset = 0f
 
+   private var _progressState by mutableFloatStateOf(0f)
    /** 互动状态 */
    private var _interactionState by mutableStateOf(RefreshInteractionState())
-   /** 当前偏移量 */
-   private var _offsetState by mutableFloatStateOf(0f)
-   /** 容器大小 */
-   private var _containerSizeState by mutableStateOf<IntSize?>(null)
    /** 可以触发刷新的距离 */
-   private var _refreshThresholdState by mutableStateOf<Float?>(null)
-   /** 刷新中状态的距离 */
-   private var _refreshingDistanceState by mutableStateOf<Float?>(null)
+   private var _refreshThresholdState by mutableFloatStateOf(0f)
 
-   private var _notifyCallbackJob: Job? = null
    private var _onRefreshCallback: (() -> Unit)? = null
-
-   private var _internalOffset = 0f
-   private val _animOffset = Animatable(0f)
-
    private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = Collections.synchronizedSet(mutableSetOf())
 
    private val _directionHandler = DirectionHandler(
@@ -168,15 +125,13 @@ internal class RefreshStateImpl(
 
    override fun showRefresh() {
       coroutineScope.launch(_dispatcher) {
-         cancelNotifyCallbackJob()
-         animateToRefreshing()
+         animateToRefresh()
       }
    }
 
    override fun hideRefresh() {
       coroutineScope.launch(_dispatcher) {
-         cancelNotifyCallbackJob()
-         if (iRefreshing()) {
+         if (currentInteraction == RefreshInteraction.Refreshing) {
             _hideRefreshingCallbacks.toTypedArray().forEach {
                it.invoke()
             }
@@ -185,12 +140,8 @@ internal class RefreshStateImpl(
       }
    }
 
-   override fun setRefreshThreshold(value: Float?) {
-      _refreshThresholdState = value
-   }
-
-   override fun setRefreshingDistance(value: Float?) {
-      _refreshingDistanceState = value
+   override fun setRefreshThreshold(value: Float) {
+      _refreshThresholdState = value.coerceAtLeast(0f)
    }
 
    override fun registerHideRefreshing(callback: suspend () -> Unit) {
@@ -199,10 +150,6 @@ internal class RefreshStateImpl(
 
    override fun unregisterHideRefreshing(callback: suspend () -> Unit) {
       _hideRefreshingCallbacks.remove(callback)
-   }
-
-   internal fun setContainerSize(size: IntSize?) {
-      _containerSizeState = size
    }
 
    internal fun setEnabled(enabled: Boolean) {
@@ -214,126 +161,96 @@ internal class RefreshStateImpl(
    }
 
    private fun handleScroll(available: Float): Float? {
-      val threshold = iGetRefreshThreshold()
+      val threshold = _refreshThresholdState
       if (threshold <= 0f) {
-         updateOffset(0f)
-         setRefreshInteraction(RefreshInteraction.None)
+         reset()
          return null
       }
 
-      return when (iGetCurrentInteraction()) {
+      return when (currentInteraction) {
          RefreshInteraction.None,
          RefreshInteraction.Drag,
             -> {
-            val offset = transformOffset(available, threshold)
-            val updated = updateOffset(_internalOffset + offset) { newOffset ->
-               when (newOffset) {
-                  0f -> {
-                     if (iGetCurrentInteraction() == RefreshInteraction.Drag) {
-                        setRefreshInteraction(RefreshInteraction.None)
-                     }
+            val transform = transformAvailable(available, threshold)
+            val newOffset = (_offset + transform).let { offset ->
+               when (refreshDirection) {
+                  RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
+                  RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
+               }
+            }
+
+            val consumed = newOffset - _offset
+            _offset = newOffset
+            _progressState = newOffset / threshold
+
+            when (newOffset) {
+               0f -> {
+                  if (currentInteraction == RefreshInteraction.Drag) {
+                     setRefreshInteraction(RefreshInteraction.None)
                   }
-                  else -> {
-                     if (iGetCurrentInteraction() == RefreshInteraction.None) {
-                        setRefreshInteraction(RefreshInteraction.Drag)
-                     }
+               }
+               else -> {
+                  if (currentInteraction == RefreshInteraction.None) {
+                     setRefreshInteraction(RefreshInteraction.Drag)
                   }
                }
             }
-            if (updated) available else null
+
+            consumed
          }
          else -> null
       }
    }
 
-   private fun transformOffset(
+   private fun transformAvailable(
       available: Float,
       threshold: Float,
    ): Float {
       require(threshold > 0)
       val maxDragDistance = (threshold * 3f).takeIf { it.isFinite() } ?: Float.MAX_VALUE
-      val currentProgress = (_internalOffset / maxDragDistance).absoluteValue.coerceIn(0f, 1f)
+      val currentProgress = (_offset / maxDragDistance).absoluteValue.coerceIn(0f, 1f)
       val multiplier = (1f - currentProgress).coerceIn(0f, 0.6f)
       return available * multiplier
    }
 
    private suspend fun handleFling(available: Float): Float? {
-      if (iGetCurrentInteraction() == RefreshInteraction.Drag) {
-         cancelNotifyCallbackJob()
-         if (iReachRefreshThreshold()) {
-            animateToRefreshing()
-            _notifyCallbackJob = currentCoroutineContext()[Job]
+      if (currentInteraction == RefreshInteraction.Drag) {
+         if (_progressState >= 1f) {
+            animateToRefresh(setRefreshing = false)
             _onRefreshCallback?.invoke()
-            delay(100)
+         } else {
+            animateToReset()
          }
-         animateToReset()
          return available
       }
       return null
    }
 
-   private fun cancelNotifyCallbackJob() {
-      _notifyCallbackJob?.cancel()
-   }
-
-   private suspend fun animateToRefreshing() {
-      animateToOffset(
-         offset = iGetRefreshingOffset(),
-         future = RefreshInteraction.Refreshing,
-      )
+   private suspend fun animateToRefresh(setRefreshing: Boolean = true) {
+      if (currentInteraction == RefreshInteraction.FlingToRefresh) return
+      if (currentInteraction == RefreshInteraction.Refreshing) return
+      setRefreshInteraction(RefreshInteraction.FlingToRefresh)
+      animateToProgress(1f)
+      if (setRefreshing) {
+         setRefreshInteraction(RefreshInteraction.Refreshing)
+      }
    }
 
    private suspend fun animateToReset() {
-      animateToOffset(
-         offset = 0f,
-         future = RefreshInteraction.None,
-      )
+      if (currentInteraction == RefreshInteraction.None) return
+      setRefreshInteraction(RefreshInteraction.FlingToNone)
+      animateToProgress(0f)
+      setRefreshInteraction(RefreshInteraction.None)
    }
 
-   private suspend fun animateToOffset(
-      offset: Float,
-      future: RefreshInteraction,
-   ) {
-      if (iGetCurrentInteraction() == future) {
-         if (_animOffset.isRunning) {
-            if (_animOffset.targetValue == offset) return
-         } else {
-            if (_internalOffset == offset) return
-         }
-      }
-
-      when (future) {
-         RefreshInteraction.None -> RefreshInteraction.FlingToNone
-         RefreshInteraction.Refreshing -> RefreshInteraction.FlingToRefresh
-         else -> error("Illegal future:$future")
-      }.let { interaction ->
-         currentCoroutineContext().ensureActive()
-         setRefreshInteraction(interaction)
-      }
-
-      _animOffset.snapTo(_internalOffset)
-      _animOffset.animateTo(offset) { updateOffset(value) }
-
-      setRefreshInteraction(future)
+   private suspend fun animateToProgress(progress: Float) {
+      _anim.snapTo(_progressState)
+      _anim.animateTo(progress) { _progressState = value }
    }
 
-   private inline fun updateOffset(
-      offset: Float,
-      onChange: (Float) -> Unit = {},
-   ): Boolean {
-      val newOffset = when (refreshDirection) {
-         RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
-         RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
-      }
-
-      return if (_internalOffset != newOffset) {
-         _internalOffset = newOffset
-         onChange(newOffset)
-         _offsetState = newOffset
-         true
-      } else {
-         false
-      }
+   private fun reset() {
+      _progressState = 0f
+      setRefreshInteraction(RefreshInteraction.None)
    }
 
    private fun setRefreshInteraction(current: RefreshInteraction) {
@@ -343,58 +260,6 @@ internal class RefreshStateImpl(
          previous = state.current,
          current = current,
       )
-   }
-
-   //-------------------- internal getter --------------------
-
-   private fun iRefreshing(): Boolean {
-      return _interactionState.current.let { current ->
-         current == RefreshInteraction.Refreshing
-            || current == RefreshInteraction.FlingToRefresh
-      }
-   }
-
-   private fun iGetCurrentInteraction(): RefreshInteraction {
-      return _interactionState.current
-   }
-
-   private fun iGetProgress(): Float {
-      return iGetRefreshThreshold().let { threshold ->
-         if (threshold > 0) {
-            (_offsetState / threshold).absoluteValue.coerceAtLeast(0f)
-         } else {
-            0f
-         }
-      }
-   }
-
-   private fun iReachRefreshThreshold(): Boolean {
-      return iGetRefreshThreshold().let { threshold ->
-         threshold > 0 && _offsetState.absoluteValue >= threshold
-      }
-   }
-
-   private fun iGetRefreshingOffset(): Float {
-      val distance = iGetRefreshingDistance()
-      return when (refreshDirection) {
-         RefreshDirection.Top, RefreshDirection.Left -> distance
-         RefreshDirection.Bottom, RefreshDirection.Right -> -distance
-      }
-   }
-
-   private fun iGetRefreshThreshold(): Float {
-      return _refreshThresholdState ?: iGetContainerSize().toFloat()
-   }
-
-   private fun iGetRefreshingDistance(): Float {
-      return _refreshingDistanceState ?: iGetContainerSize().toFloat()
-   }
-
-   private fun iGetContainerSize(): Int {
-      return when (refreshDirection) {
-         RefreshDirection.Top, RefreshDirection.Bottom -> _containerSizeState?.height ?: 0
-         RefreshDirection.Left, RefreshDirection.Right -> _containerSizeState?.width ?: 0
-      }
    }
 
    override val nestedScrollConnection = object : NestedScrollConnection {
@@ -423,19 +288,6 @@ internal class RefreshStateImpl(
 
       override suspend fun onPreFling(available: Velocity): Velocity {
          return _directionHandler.handlePreFling(available)
-      }
-   }
-
-   init {
-      coroutineScope.launch(_dispatcher) {
-         snapshotFlow { refreshingDistance }
-            .filter { it > 0 }
-            .distinctUntilChanged()
-            .collect {
-               if (iRefreshing()) {
-                  animateToRefreshing()
-               }
-            }
       }
    }
 }

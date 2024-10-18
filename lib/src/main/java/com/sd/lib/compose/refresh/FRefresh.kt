@@ -24,11 +24,7 @@ fun FRefreshContainer(
    modifier: Modifier = Modifier,
    indicator: @Composable (FRefreshState) -> Unit = { DefaultRefreshIndicator(state = state) },
 ) {
-   check(state is RefreshStateImpl)
-
-   var containerSize by remember { mutableStateOf<IntSize?>(null) }
-
-   state.setContainerSize(containerSize)
+   var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
    if (isRefreshing != null) {
       LaunchedEffect(isRefreshing) {
@@ -46,11 +42,12 @@ fun FRefreshContainer(
             containerSize = it
          }
          .graphicsLayer {
+            val progress = state.progress
             when (state.refreshDirection) {
-               RefreshDirection.Top -> translationY = state.offset - size.height
-               RefreshDirection.Bottom -> translationY = state.offset + size.height
-               RefreshDirection.Left -> translationX = state.offset - size.width
-               RefreshDirection.Right -> translationX = state.offset + size.width
+               RefreshDirection.Top -> translationY = progress * size.height - size.height
+               RefreshDirection.Left -> translationX = progress * size.width - size.width
+               RefreshDirection.Bottom -> translationY = size.height - progress * size.height
+               RefreshDirection.Right -> translationX = size.width - progress * size.width
             }
          },
       contentAlignment = Alignment.Center,
