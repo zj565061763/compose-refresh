@@ -91,8 +91,8 @@ data class RefreshInteractionState(
 )
 
 internal class RefreshStateImpl(
-   private val coroutineScope: CoroutineScope,
    override val refreshDirection: RefreshDirection,
+   private val coroutineScope: CoroutineScope,
 ) : FRefreshState {
    private var _enabled = false
    private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrDefault(Dispatchers.Main)

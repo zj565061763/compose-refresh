@@ -158,8 +158,8 @@ private fun rememberFRefreshState(
    val coroutineScope = rememberCoroutineScope()
    return remember(refreshDirection, coroutineScope) {
       RefreshStateImpl(
-         coroutineScope = coroutineScope,
          refreshDirection = refreshDirection,
+         coroutineScope = coroutineScope,
       )
    }.apply {
       setEnabled(enabled)
