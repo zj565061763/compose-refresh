@@ -190,7 +190,7 @@ internal class RefreshStateImpl(
 
             val consumed = newOffset - _offset
             _offset = newOffset
-            _progressState = newOffset / threshold
+            _progressState = (newOffset / threshold).absoluteValue
 
             if (newOffset == 0f) {
                if (currentInteraction == RefreshInteraction.Drag) {
