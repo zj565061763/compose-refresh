@@ -43,17 +43,17 @@ fun FRefreshContainer(
 
    Box(
       modifier = modifier
-          .onSizeChanged {
-              containerSize = it
-          }
-          .graphicsLayer {
-              when (state.refreshDirection) {
-                  RefreshDirection.Top -> translationY = state.offset - size.height
-                  RefreshDirection.Bottom -> translationY = state.offset + size.height
-                  RefreshDirection.Start -> translationX = state.offset - size.width
-                  RefreshDirection.End -> translationX = state.offset + size.width
-              }
-          },
+         .onSizeChanged {
+            containerSize = it
+         }
+         .graphicsLayer {
+            when (state.refreshDirection) {
+               RefreshDirection.Top -> translationY = state.offset - size.height
+               RefreshDirection.Bottom -> translationY = state.offset + size.height
+               RefreshDirection.Start -> translationX = state.offset - size.width
+               RefreshDirection.End -> translationX = state.offset + size.width
+            }
+         },
       contentAlignment = Alignment.Center,
    ) {
       indicator(state)
@@ -138,6 +138,6 @@ private fun rememberFRefreshState(
    }
 }
 
-internal inline fun logMsg(block: () -> Any?) {
-   Log.i("FRefresh", block().toString())
+internal inline fun logMsg(block: () -> String) {
+   Log.i("FRefresh", block())
 }
