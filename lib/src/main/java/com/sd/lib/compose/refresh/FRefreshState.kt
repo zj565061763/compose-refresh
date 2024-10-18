@@ -275,7 +275,7 @@ internal class RefreshStateImpl(
       ): Offset {
          return when {
             !_enabled -> Offset.Zero
-            source == NestedScrollSource.Drag -> _directionHandler.handlePreScroll(available)
+            source == NestedScrollSource.UserInput -> _directionHandler.handlePreScroll(available)
             else -> Offset.Zero
          }
       }
@@ -287,7 +287,7 @@ internal class RefreshStateImpl(
       ): Offset {
          return when {
             !_enabled -> Offset.Zero
-            source == NestedScrollSource.Drag -> _directionHandler.handlePostScroll(available)
+            source == NestedScrollSource.UserInput -> _directionHandler.handlePostScroll(available)
             else -> Offset.Zero
          }
       }
