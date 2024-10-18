@@ -42,18 +42,18 @@ interface FRefreshState {
    /** 刷新方向 */
    val refreshDirection: RefreshDirection
 
-   /** 当前偏移量 */
-   val offset: Float
-
-   /** [offset] / [reachRefreshThreshold] */
+   /** [offset] / [refreshThreshold] */
    @get:FloatRange(from = 0.0)
    val progress: Float
 
-   /** 可以触发刷新的距离 */
+   /** 当前偏移量 */
+   val offset: Float
+
+   /** 可以触发刷新的距离，默认为容器的大小 */
    @get:FloatRange(from = 0.0)
    val refreshThreshold: Float
 
-   /** 刷新中状态的距离 */
+   /** 刷新中状态的距离，默认为容器的大小 */
    @get:FloatRange(from = 0.0)
    val refreshingDistance: Float
 
