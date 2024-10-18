@@ -72,7 +72,7 @@ enum class RefreshInteraction {
    /** 拖动 */
    Drag,
 
-   /** 正在滑向刷新位置 */
+   /** 正在滑向刷新状态的位置 */
    FlingToRefresh,
 
    /** 刷新中 */
