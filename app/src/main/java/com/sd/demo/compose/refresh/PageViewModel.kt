@@ -10,11 +10,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PageViewModel : ViewModel() {
-   private val _uiState = MutableStateFlow(DemoUIState())
+   private val _mutator = MutatorMutex()
    private val _list = mutableListOf<String>()
 
-   private val _mutator = MutatorMutex()
-
+   private val _uiState = MutableStateFlow(DemoUIState())
    val uiState = _uiState.asStateFlow()
 
    /**
@@ -22,7 +21,7 @@ class PageViewModel : ViewModel() {
     */
    fun refresh(count: Int) {
       viewModelScope.launch {
-         _mutator.mutate { refreshInternal(count = count) }
+         _mutator.mutate { refreshData(count = count) }
       }
    }
 
@@ -31,11 +30,11 @@ class PageViewModel : ViewModel() {
     */
    fun loadMore() {
       viewModelScope.launch {
-         _mutator.mutate { loadMoreInternal() }
+         _mutator.mutate { loadMoreData() }
       }
    }
 
-   private suspend fun refreshInternal(count: Int) {
+   private suspend fun refreshData(count: Int) {
       try {
          _uiState.update { it.copy(isRefreshing = true) }
 
@@ -49,7 +48,7 @@ class PageViewModel : ViewModel() {
       }
    }
 
-   private suspend fun loadMoreInternal() {
+   private suspend fun loadMoreData() {
       try {
          _uiState.update { it.copy(isLoadingMore = true) }
 
