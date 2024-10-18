@@ -216,8 +216,8 @@ internal class RefreshStateImpl(
    }
 
    private fun handleScroll(available: Float): Float? {
-      val maxDragDistance = iGetMaxDragDistance()
-      if (maxDragDistance <= 0) {
+      val threshold = iGetRefreshThreshold()
+      if (threshold <= 0f) {
          updateOffset(0f)
          setRefreshInteraction(RefreshInteraction.None)
          return null
@@ -225,7 +225,7 @@ internal class RefreshStateImpl(
 
       when (iGetCurrentInteraction()) {
          RefreshInteraction.None, RefreshInteraction.Drag -> {
-            val offset = transformOffset(available, maxDragDistance)
+            val offset = transformOffset(available, threshold)
             return updateOffset(_internalOffset + offset) { newOffset ->
                when (newOffset) {
                   0f -> {
@@ -249,9 +249,10 @@ internal class RefreshStateImpl(
 
    private fun transformOffset(
       available: Float,
-      maxDragDistance: Float,
+      threshold: Float,
    ): Float {
-      require(maxDragDistance > 0)
+      require(threshold > 0)
+      val maxDragDistance = (threshold * 3f).takeIf { it.isFinite() } ?: Float.MAX_VALUE
       val currentProgress = (_internalOffset / maxDragDistance).absoluteValue.coerceIn(0f, 1f)
       val multiplier = (1f - currentProgress).coerceIn(0f, 0.6f)
       return available * multiplier
@@ -380,10 +381,6 @@ internal class RefreshStateImpl(
          RefreshDirection.Top, RefreshDirection.Left -> distance
          RefreshDirection.Bottom, RefreshDirection.Right -> -distance
       }
-   }
-
-   private fun iGetMaxDragDistance(): Float {
-      return maxOf(iGetRefreshThreshold(), iGetRefreshingDistance()) * 3
    }
 
    private fun iGetRefreshThreshold(): Float {
