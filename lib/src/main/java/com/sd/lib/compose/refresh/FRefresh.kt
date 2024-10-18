@@ -20,44 +20,44 @@ import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 @SuppressLint("ModifierParameter")
 @Composable
 fun FRefreshContainer(
-    state: FRefreshState,
-    isRefreshing: Boolean?,
-    modifier: Modifier = Modifier,
-    indicator: @Composable (FRefreshState) -> Unit = { DefaultRefreshIndicator(state = state) },
+   state: FRefreshState,
+   isRefreshing: Boolean?,
+   modifier: Modifier = Modifier,
+   indicator: @Composable (FRefreshState) -> Unit = { DefaultRefreshIndicator(state = state) },
 ) {
-    check(state is RefreshStateImpl)
+   check(state is RefreshStateImpl)
 
-    var containerSize by remember { mutableStateOf<IntSize?>(null) }
+   var containerSize by remember { mutableStateOf<IntSize?>(null) }
 
-    state.setContainerSize(containerSize)
+   state.setContainerSize(containerSize)
 
-    if (isRefreshing != null) {
-        LaunchedEffect(isRefreshing) {
-            if (isRefreshing) {
-                state.showRefresh()
-            } else {
-                state.hideRefresh()
-            }
-        }
-    }
+   if (isRefreshing != null) {
+      LaunchedEffect(isRefreshing) {
+         if (isRefreshing) {
+            state.showRefresh()
+         } else {
+            state.hideRefresh()
+         }
+      }
+   }
 
-    Box(
-        modifier = modifier
-            .onSizeChanged {
-                containerSize = it
-            }
-            .graphicsLayer {
-                when (state.refreshDirection) {
-                    RefreshDirection.Top -> translationY = state.offset - size.height
-                    RefreshDirection.Bottom -> translationY = state.offset + size.height
-                    RefreshDirection.Start -> translationX = state.offset - size.width
-                    RefreshDirection.End -> translationX = state.offset + size.width
-                }
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        indicator(state)
-    }
+   Box(
+      modifier = modifier
+          .onSizeChanged {
+              containerSize = it
+          }
+          .graphicsLayer {
+              when (state.refreshDirection) {
+                  RefreshDirection.Top -> translationY = state.offset - size.height
+                  RefreshDirection.Bottom -> translationY = state.offset + size.height
+                  RefreshDirection.Start -> translationX = state.offset - size.width
+                  RefreshDirection.End -> translationX = state.offset + size.width
+              }
+          },
+      contentAlignment = Alignment.Center,
+   ) {
+      indicator(state)
+   }
 }
 
 /**
@@ -65,14 +65,14 @@ fun FRefreshContainer(
  */
 @Composable
 fun rememberFRefreshStateTop(
-    enabled: () -> Boolean = { true },
-    onRefresh: () -> Unit,
+   enabled: () -> Boolean = { true },
+   onRefresh: () -> Unit,
 ): FRefreshState {
-    return rememberFRefreshState(
-        refreshDirection = RefreshDirection.Top,
-        enabled = enabled,
-        onRefresh = onRefresh,
-    )
+   return rememberFRefreshState(
+      refreshDirection = RefreshDirection.Top,
+      enabled = enabled,
+      onRefresh = onRefresh,
+   )
 }
 
 /**
@@ -80,14 +80,14 @@ fun rememberFRefreshStateTop(
  */
 @Composable
 fun rememberFRefreshStateBottom(
-    enabled: () -> Boolean = { true },
-    onRefresh: () -> Unit,
+   enabled: () -> Boolean = { true },
+   onRefresh: () -> Unit,
 ): FRefreshState {
-    return rememberFRefreshState(
-        refreshDirection = RefreshDirection.Bottom,
-        enabled = enabled,
-        onRefresh = onRefresh,
-    )
+   return rememberFRefreshState(
+      refreshDirection = RefreshDirection.Bottom,
+      enabled = enabled,
+      onRefresh = onRefresh,
+   )
 }
 
 /**
@@ -95,14 +95,14 @@ fun rememberFRefreshStateBottom(
  */
 @Composable
 fun rememberFRefreshStateLeft(
-    enabled: () -> Boolean = { true },
-    onRefresh: () -> Unit,
+   enabled: () -> Boolean = { true },
+   onRefresh: () -> Unit,
 ): FRefreshState {
-    return rememberFRefreshState(
-       refreshDirection = RefreshDirection.Start,
-       enabled = enabled,
-       onRefresh = onRefresh,
-    )
+   return rememberFRefreshState(
+      refreshDirection = RefreshDirection.Start,
+      enabled = enabled,
+      onRefresh = onRefresh,
+   )
 }
 
 /**
@@ -110,34 +110,34 @@ fun rememberFRefreshStateLeft(
  */
 @Composable
 fun rememberFRefreshStateRight(
-    enabled: () -> Boolean = { true },
-    onRefresh: () -> Unit,
+   enabled: () -> Boolean = { true },
+   onRefresh: () -> Unit,
 ): FRefreshState {
-    return rememberFRefreshState(
-        refreshDirection = RefreshDirection.End,
-        enabled = enabled,
-        onRefresh = onRefresh,
-    )
+   return rememberFRefreshState(
+      refreshDirection = RefreshDirection.End,
+      enabled = enabled,
+      onRefresh = onRefresh,
+   )
 }
 
 @Composable
 private fun rememberFRefreshState(
-    refreshDirection: RefreshDirection,
-    enabled: () -> Boolean = { true },
-    onRefresh: () -> Unit,
+   refreshDirection: RefreshDirection,
+   enabled: () -> Boolean = { true },
+   onRefresh: () -> Unit,
 ): FRefreshState {
-    val coroutineScope = rememberCoroutineScope()
-    return remember(refreshDirection, enabled, coroutineScope) {
-        RefreshStateImpl(
-            coroutineScope = coroutineScope,
-            refreshDirection = refreshDirection,
-            enabled = enabled,
-        )
-    }.apply {
-        setRefreshCallback(onRefresh)
-    }
+   val coroutineScope = rememberCoroutineScope()
+   return remember(refreshDirection, enabled, coroutineScope) {
+      RefreshStateImpl(
+         coroutineScope = coroutineScope,
+         refreshDirection = refreshDirection,
+         enabled = enabled,
+      )
+   }.apply {
+      setRefreshCallback(onRefresh)
+   }
 }
 
 internal inline fun logMsg(block: () -> Any?) {
-    Log.i("FRefresh", block().toString())
+   Log.i("FRefresh", block().toString())
 }
