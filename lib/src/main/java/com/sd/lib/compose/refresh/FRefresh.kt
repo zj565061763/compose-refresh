@@ -14,7 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 
 @SuppressLint("ModifierParameter")
@@ -106,6 +108,42 @@ fun rememberFRefreshStateRight(
       enabled = enabled,
       onRefresh = onRefresh,
    )
+}
+
+@Composable
+fun rememberFRefreshStateStart(
+   enabled: Boolean = true,
+   onRefresh: () -> Unit,
+): FRefreshState {
+   return if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+      rememberFRefreshStateLeft(
+         enabled = enabled,
+         onRefresh = onRefresh,
+      )
+   } else {
+      rememberFRefreshStateRight(
+         enabled = enabled,
+         onRefresh = onRefresh,
+      )
+   }
+}
+
+@Composable
+fun rememberFRefreshStateEnd(
+   enabled: Boolean = true,
+   onRefresh: () -> Unit,
+): FRefreshState {
+   return if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
+      rememberFRefreshStateRight(
+         enabled = enabled,
+         onRefresh = onRefresh,
+      )
+   } else {
+      rememberFRefreshStateLeft(
+         enabled = enabled,
+         onRefresh = onRefresh,
+      )
+   }
 }
 
 @Composable
