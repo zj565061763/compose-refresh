@@ -279,24 +279,30 @@ internal class RefreshStateImpl(
    }
 
    private suspend fun animateToRefreshing() {
-      animateToOffset(iGetRefreshingOffset(), RefreshInteraction.Refreshing)
+      animateToOffset(
+         offset = iGetRefreshingOffset(),
+         future = RefreshInteraction.Refreshing,
+      )
    }
 
    private suspend fun animateToReset() {
-      animateToOffset(0f, RefreshInteraction.None)
+      animateToOffset(
+         offset = 0f,
+         future = RefreshInteraction.None,
+      )
    }
 
    private suspend fun animateToOffset(
       offset: Float,
-      flingEnd: RefreshInteraction,
+      future: RefreshInteraction,
    ) {
-      val flingInteraction = when (flingEnd) {
+      val interaction = when (future) {
          RefreshInteraction.None -> RefreshInteraction.FlingToNone
          RefreshInteraction.Refreshing -> RefreshInteraction.FlingToRefresh
-         else -> error("Illegal flingEnd:$flingEnd")
+         else -> error("Illegal future:$future")
       }
 
-      if (iGetCurrentInteraction() == flingEnd) {
+      if (iGetCurrentInteraction() == future) {
          if (_animOffset.isRunning) {
             if (_animOffset.targetValue == offset) return
          } else {
@@ -305,12 +311,12 @@ internal class RefreshStateImpl(
       }
 
       currentCoroutineContext().ensureActive()
-      setRefreshInteraction(flingInteraction)
+      setRefreshInteraction(interaction)
 
       _animOffset.snapTo(_internalOffset)
       _animOffset.animateTo(offset) { updateOffset(value) }
 
-      setRefreshInteraction(flingEnd)
+      setRefreshInteraction(future)
    }
 
    private inline fun updateOffset(
