@@ -14,9 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 
 @SuppressLint("ModifierParameter")
@@ -52,8 +50,8 @@ fun FRefreshContainer(
             when (state.refreshDirection) {
                RefreshDirection.Top -> translationY = state.offset - size.height
                RefreshDirection.Bottom -> translationY = state.offset + size.height
-               RefreshDirection.Start -> translationX = state.offset - size.width
-               RefreshDirection.End -> translationX = state.offset + size.width
+               RefreshDirection.Left -> translationX = state.offset - size.width
+               RefreshDirection.Right -> translationX = state.offset + size.width
             }
          },
       contentAlignment = Alignment.Center,
@@ -62,9 +60,6 @@ fun FRefreshContainer(
    }
 }
 
-/**
- * 顶部刷新
- */
 @Composable
 fun rememberFRefreshStateTop(
    enabled: Boolean = true,
@@ -77,9 +72,6 @@ fun rememberFRefreshStateTop(
    )
 }
 
-/**
- * 底部刷新
- */
 @Composable
 fun rememberFRefreshStateBottom(
    enabled: Boolean = true,
@@ -93,28 +85,24 @@ fun rememberFRefreshStateBottom(
 }
 
 @Composable
-fun rememberFRefreshStateStart(
+fun rememberFRefreshStateLeft(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
-   val layoutDirection = LocalLayoutDirection.current
-   val refreshDirection = if (layoutDirection == LayoutDirection.Ltr) RefreshDirection.Start else RefreshDirection.End
    return rememberFRefreshState(
-      refreshDirection = refreshDirection,
+      refreshDirection = RefreshDirection.Left,
       enabled = enabled,
       onRefresh = onRefresh,
    )
 }
 
 @Composable
-fun rememberFRefreshStateEnd(
+fun rememberFRefreshStateRight(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
-   val layoutDirection = LocalLayoutDirection.current
-   val refreshDirection = if (layoutDirection == LayoutDirection.Ltr) RefreshDirection.End else RefreshDirection.Start
    return rememberFRefreshState(
-      refreshDirection = refreshDirection,
+      refreshDirection = RefreshDirection.Right,
       enabled = enabled,
       onRefresh = onRefresh,
    )

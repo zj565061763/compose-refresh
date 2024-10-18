@@ -29,7 +29,7 @@ import java.util.Collections
 import kotlin.math.absoluteValue
 
 interface FRefreshState {
-   /** 刷新方向，该值不会改变 */
+   /** 刷新方向 */
    val refreshDirection: RefreshDirection
 
    /** 是否刷新中[RefreshInteraction.Refreshing]或者即将刷新[RefreshInteraction.FlingToRefresh] */
@@ -97,7 +97,7 @@ interface FRefreshState {
 }
 
 enum class RefreshDirection {
-   Top, Bottom, Start, End,
+   Top, Bottom, Left, Right,
 }
 
 enum class RefreshInteraction {
@@ -320,8 +320,8 @@ internal class RefreshStateImpl(
       onChange: (Float) -> Unit = {},
    ): Boolean {
       val newOffset = when (refreshDirection) {
-         RefreshDirection.Top, RefreshDirection.Start -> offset.coerceAtLeast(0f)
-         RefreshDirection.Bottom, RefreshDirection.End -> offset.coerceAtMost(0f)
+         RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
+         RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
       }
 
       return if (_internalOffset != newOffset) {
@@ -375,8 +375,8 @@ internal class RefreshStateImpl(
    private fun iGetRefreshingOffset(): Float {
       val distance = iGetRefreshingDistance()
       return when (refreshDirection) {
-         RefreshDirection.Top, RefreshDirection.Start -> distance
-         RefreshDirection.Bottom, RefreshDirection.End -> -distance
+         RefreshDirection.Top, RefreshDirection.Left -> distance
+         RefreshDirection.Bottom, RefreshDirection.Right -> -distance
       }
    }
 
@@ -395,7 +395,7 @@ internal class RefreshStateImpl(
    private fun iGetContainerSize(): Int {
       return when (refreshDirection) {
          RefreshDirection.Top, RefreshDirection.Bottom -> _containerSizeState?.height ?: 0
-         RefreshDirection.Start, RefreshDirection.End -> _containerSizeState?.width ?: 0
+         RefreshDirection.Left, RefreshDirection.Right -> _containerSizeState?.width ?: 0
       }
    }
 
