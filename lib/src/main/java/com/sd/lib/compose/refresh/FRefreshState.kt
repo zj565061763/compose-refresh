@@ -103,12 +103,10 @@ internal class RefreshStateImpl(
 
    private val _anim = Animatable(0f)
    private var _offset = 0f
+   private var _refreshThreshold = 0f
 
    private var _progressState by mutableFloatStateOf(0f)
-   /** 互动状态 */
    private var _interactionState by mutableStateOf(RefreshInteractionState())
-   /** 可以触发刷新的距离 */
-   private var _refreshThresholdState by mutableFloatStateOf(0f)
 
    private var _onRefreshCallback: (() -> Unit)? = null
    private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = Collections.synchronizedSet(mutableSetOf())
@@ -144,7 +142,7 @@ internal class RefreshStateImpl(
    }
 
    override fun setRefreshThreshold(value: Float) {
-      _refreshThresholdState = value.coerceAtLeast(0f)
+      _refreshThreshold = value.coerceAtLeast(0f)
    }
 
    override fun registerHideRefreshing(callback: suspend () -> Unit) {
@@ -164,7 +162,7 @@ internal class RefreshStateImpl(
    }
 
    private fun handleScroll(available: Float): Float? {
-      val threshold = _refreshThresholdState
+      val threshold = _refreshThreshold
       if (threshold <= 0f) {
          reset()
          return null
