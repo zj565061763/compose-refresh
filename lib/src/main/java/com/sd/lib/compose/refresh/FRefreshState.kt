@@ -247,8 +247,14 @@ internal class RefreshStateImpl(
    }
 
    private fun reset() {
-      _progressState = 0f
-      setRefreshInteraction(RefreshInteraction.None)
+      coroutineScope.launch(_dispatcher) {
+         try {
+            _anim.stop()
+         } finally {
+            _progressState = 0f
+            setRefreshInteraction(RefreshInteraction.None)
+         }
+      }
    }
 
    private fun setRefreshInteraction(current: RefreshInteraction) {
@@ -271,6 +277,7 @@ internal class RefreshStateImpl(
          source: NestedScrollSource,
       ): Offset {
          return when {
+            _anim.isRunning -> Offset.Zero
             !_enabled -> Offset.Zero
             source == NestedScrollSource.UserInput -> _directionHandler.handlePreScroll(available)
             else -> Offset.Zero
@@ -283,6 +290,7 @@ internal class RefreshStateImpl(
          source: NestedScrollSource,
       ): Offset {
          return when {
+            _anim.isRunning -> Offset.Zero
             !_enabled -> Offset.Zero
             source == NestedScrollSource.UserInput -> _directionHandler.handlePostScroll(available)
             else -> Offset.Zero
