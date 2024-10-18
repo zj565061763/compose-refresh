@@ -86,7 +86,7 @@ data class RefreshInteractionState(
    /** 当前互动状态 */
    val current: RefreshInteraction = RefreshInteraction.None,
 
-   /** 上一次互动状态 */
+   /** 上一个互动状态 */
    val previous: RefreshInteraction = RefreshInteraction.None,
 )
 
