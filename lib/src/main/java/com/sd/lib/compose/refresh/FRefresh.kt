@@ -30,6 +30,7 @@ fun FRefreshContainer(
       RefreshDirection.Top, RefreshDirection.Bottom -> containerSize.height
       RefreshDirection.Left, RefreshDirection.Right -> containerSize.width
    }.let {
+      // TODO review logic
       state.setRefreshThreshold(it.toFloat())
    }
 
