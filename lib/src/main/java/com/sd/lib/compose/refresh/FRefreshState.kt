@@ -165,7 +165,8 @@ internal class RefreshStateImpl(
    private fun handleScroll(available: Float): Float? {
       val threshold = _refreshThreshold
       if (threshold <= 0f) {
-         reset()
+         _progressState = 0f
+         setRefreshInteraction(RefreshInteraction.None)
          return null
       }
 
@@ -244,17 +245,6 @@ internal class RefreshStateImpl(
    private suspend fun animateToProgress(progress: Float) {
       _anim.snapTo(_progressState)
       _anim.animateTo(progress) { _progressState = value }
-   }
-
-   private fun reset() {
-      coroutineScope.launch(_dispatcher) {
-         try {
-            _anim.stop()
-         } finally {
-            _progressState = 0f
-            setRefreshInteraction(RefreshInteraction.None)
-         }
-      }
    }
 
    private fun setRefreshInteraction(current: RefreshInteraction) {
