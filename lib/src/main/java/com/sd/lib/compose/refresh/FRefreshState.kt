@@ -170,38 +170,31 @@ internal class RefreshStateImpl(
          return null
       }
 
-      return when (currentInteraction) {
-         RefreshInteraction.None,
-         RefreshInteraction.Drag,
-            -> {
-            val transform = transformAvailable(available, threshold)
-            val newOffset = (_offset + transform).let { offset ->
-               when (refreshDirection) {
-                  RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
-                  RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
-               }
-            }
-
-            if (newOffset != 0f) {
-               if (currentInteraction == RefreshInteraction.None) {
-                  setRefreshInteraction(RefreshInteraction.Drag)
-               }
-            }
-
-            val consumed = newOffset - _offset
-            _offset = newOffset
-            _progressState = (newOffset / threshold).absoluteValue
-
-            if (newOffset == 0f) {
-               if (currentInteraction == RefreshInteraction.Drag) {
-                  setRefreshInteraction(RefreshInteraction.None)
-               }
-            }
-
-            consumed
+      val transform = transformAvailable(available, threshold)
+      val newOffset = (_offset + transform).let { offset ->
+         when (refreshDirection) {
+            RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
+            RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
          }
-         else -> null
       }
+
+      if (newOffset != 0f) {
+         if (currentInteraction == RefreshInteraction.None) {
+            setRefreshInteraction(RefreshInteraction.Drag)
+         }
+      }
+
+      val consumed = newOffset - _offset
+      _offset = newOffset
+      _progressState = (newOffset / threshold).absoluteValue
+
+      if (newOffset == 0f) {
+         if (currentInteraction == RefreshInteraction.Drag) {
+            setRefreshInteraction(RefreshInteraction.None)
+         }
+      }
+
+      return consumed
    }
 
    private fun transformAvailable(
@@ -266,11 +259,10 @@ internal class RefreshStateImpl(
          available: Offset,
          source: NestedScrollSource,
       ): Offset {
-         return when {
-            _anim.isRunning -> Offset.Zero
-            !_enabled -> Offset.Zero
-            source == NestedScrollSource.UserInput -> _directionHandler.handlePreScroll(available)
-            else -> Offset.Zero
+         return if (canDrag()) {
+            _directionHandler.handlePreScroll(available)
+         } else {
+            Offset.Zero
          }
       }
 
@@ -279,16 +271,21 @@ internal class RefreshStateImpl(
          available: Offset,
          source: NestedScrollSource,
       ): Offset {
-         return when {
-            _anim.isRunning -> Offset.Zero
-            !_enabled -> Offset.Zero
-            source == NestedScrollSource.UserInput -> _directionHandler.handlePostScroll(available)
-            else -> Offset.Zero
+         return if (canDrag()) {
+            _directionHandler.handlePostScroll(available)
+         } else {
+            Offset.Zero
          }
       }
 
       override suspend fun onPreFling(available: Velocity): Velocity {
          return _directionHandler.handlePreFling(available)
+      }
+   }
+
+   private fun canDrag(): Boolean {
+      return _enabled && currentInteraction.let {
+         it == RefreshInteraction.None || it == RefreshInteraction.Drag
       }
    }
 }
