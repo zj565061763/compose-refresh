@@ -128,8 +128,8 @@ data class RefreshInteractionState(
 internal class RefreshStateImpl(
    private val coroutineScope: CoroutineScope,
    override val refreshDirection: RefreshDirection,
-   enabled: () -> Boolean,
 ) : FRefreshState {
+   private var _enabled = false
    private val _dispatcher = Dispatchers.Main.immediate
 
    override val isRefreshing: Boolean by derivedStateOf { iRefreshing() }
@@ -209,6 +209,10 @@ internal class RefreshStateImpl(
 
    internal fun setContainerSize(size: IntSize?) {
       _containerSizeState = size
+   }
+
+   internal fun setEnabled(enabled: Boolean) {
+      _enabled = enabled
    }
 
    internal fun setRefreshCallback(callback: () -> Unit) {
@@ -401,7 +405,7 @@ internal class RefreshStateImpl(
          source: NestedScrollSource,
       ): Offset {
          return when {
-            !enabled() -> Offset.Zero
+            !_enabled -> Offset.Zero
             source == NestedScrollSource.Drag -> _directionHandler.handlePreScroll(available)
             else -> Offset.Zero
          }
@@ -413,7 +417,7 @@ internal class RefreshStateImpl(
          source: NestedScrollSource,
       ): Offset {
          return when {
-            !enabled() -> Offset.Zero
+            !_enabled -> Offset.Zero
             source == NestedScrollSource.Drag -> _directionHandler.handlePostScroll(available)
             else -> Offset.Zero
          }

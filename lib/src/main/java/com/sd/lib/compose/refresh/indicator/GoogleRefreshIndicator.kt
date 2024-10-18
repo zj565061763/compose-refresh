@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.derivedStateOf
@@ -90,8 +89,6 @@ internal fun GoogleRefreshIndicator(
    }
 }
 
-
-/** The default pull indicator for [PullToRefreshContainer] */
 @Composable
 private fun CircularArrowProgressIndicator(
    progress: () -> Float,
@@ -107,12 +104,12 @@ private fun CircularArrowProgressIndicator(
    }
    val alphaState = animateFloatAsState(targetValue = targetAlpha, animationSpec = AlphaTween)
    Canvas(
-       Modifier
-           .semantics(mergeDescendants = true) {
-               progressBarRangeInfo =
-                   ProgressBarRangeInfo(progress(), 0f..1f, 0)
-           }
-           .size(spinnerSize)
+      Modifier
+         .semantics(mergeDescendants = true) {
+            progressBarRangeInfo =
+               ProgressBarRangeInfo(progress(), 0f..1f, 0)
+         }
+         .size(spinnerSize)
    ) {
       val values = ArrowValues(progress())
       val alpha = alphaState.value
@@ -126,11 +123,11 @@ private fun CircularArrowProgressIndicator(
 }
 
 private fun DrawScope.drawCircularIndicator(
-    color: Color,
-    alpha: Float,
-    values: ArrowValues,
-    arcBounds: Rect,
-    strokeWidth: Dp,
+   color: Color,
+   alpha: Float,
+   values: ArrowValues,
+   arcBounds: Rect,
+   strokeWidth: Dp,
 ) {
    drawArc(
       color = color,
@@ -149,10 +146,10 @@ private fun DrawScope.drawCircularIndicator(
 
 @Immutable
 private class ArrowValues(
-    val rotation: Float,
-    val startAngle: Float,
-    val endAngle: Float,
-    val scale: Float,
+   val rotation: Float,
+   val startAngle: Float,
+   val endAngle: Float,
+   val scale: Float,
 )
 
 private fun ArrowValues(progress: Float): ArrowValues {

@@ -65,7 +65,7 @@ fun FRefreshContainer(
  */
 @Composable
 fun rememberFRefreshStateTop(
-   enabled: () -> Boolean = { true },
+   enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
    return rememberFRefreshState(
@@ -80,7 +80,7 @@ fun rememberFRefreshStateTop(
  */
 @Composable
 fun rememberFRefreshStateBottom(
-   enabled: () -> Boolean = { true },
+   enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
    return rememberFRefreshState(
@@ -95,7 +95,7 @@ fun rememberFRefreshStateBottom(
  */
 @Composable
 fun rememberFRefreshStateLeft(
-   enabled: () -> Boolean = { true },
+   enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
    return rememberFRefreshState(
@@ -110,7 +110,7 @@ fun rememberFRefreshStateLeft(
  */
 @Composable
 fun rememberFRefreshStateRight(
-   enabled: () -> Boolean = { true },
+   enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
    return rememberFRefreshState(
@@ -123,17 +123,17 @@ fun rememberFRefreshStateRight(
 @Composable
 private fun rememberFRefreshState(
    refreshDirection: RefreshDirection,
-   enabled: () -> Boolean = { true },
+   enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
    val coroutineScope = rememberCoroutineScope()
-   return remember(refreshDirection, enabled, coroutineScope) {
+   return remember(refreshDirection, coroutineScope) {
       RefreshStateImpl(
          coroutineScope = coroutineScope,
          refreshDirection = refreshDirection,
-         enabled = enabled,
       )
    }.apply {
+      setEnabled(enabled)
       setRefreshCallback(onRefresh)
    }
 }
