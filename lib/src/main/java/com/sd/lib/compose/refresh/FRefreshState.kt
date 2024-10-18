@@ -132,6 +132,7 @@ internal class RefreshStateImpl(
 
    override fun hideRefresh() {
       coroutineScope.launch(_dispatcher) {
+         // TODO review cancellation logic
          if (currentInteraction == RefreshInteraction.Refreshing) {
             _hideRefreshingCallbacks.toTypedArray().forEach {
                it.invoke()
