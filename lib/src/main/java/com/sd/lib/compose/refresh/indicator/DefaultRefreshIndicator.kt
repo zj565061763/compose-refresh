@@ -82,7 +82,9 @@ fun DefaultRefreshIndicator(
                RefreshDirection.Left -> 270f
             }
          },
-         isRefreshing = state.isRefreshing,
+         isRefreshing = state.currentInteraction.let {
+            it == RefreshInteraction.Refreshing || it == RefreshInteraction.FlingToRefresh
+         },
          progress = { state.progress },
          contentColor = contentColor,
          spinnerSize = spinnerSize,
@@ -108,33 +110,33 @@ private fun WrapperBox(
    ) {
       Box(
          modifier = Modifier
-             .size(size)
-             .background(backgroundColor, CircleShape)
-             .let {
-                 if (shadow) {
-                     it.drawBehind {
-                         drawIntoCanvas { canvas ->
-                             val paint = Paint()
-                             with(paint.asFrameworkPaint()) {
-                                 this.color = backgroundColor.toArgb()
-                                 this.setShadowLayer(
-                                     5.dp.toPx(),
-                                     0f,
-                                     0f,
-                                     shadowColor
-                                         .copy(0.2f)
-                                         .toArgb(),
-                                 )
-                             }
+            .size(size)
+            .background(backgroundColor, CircleShape)
+            .let {
+               if (shadow) {
+                  it.drawBehind {
+                     drawIntoCanvas { canvas ->
+                        val paint = Paint()
+                        with(paint.asFrameworkPaint()) {
+                           this.color = backgroundColor.toArgb()
+                           this.setShadowLayer(
+                              5.dp.toPx(),
+                              0f,
+                              0f,
+                              shadowColor
+                                 .copy(0.2f)
+                                 .toArgb(),
+                           )
+                        }
 
-                             val outline = CircleShape.createOutline(this.size, this.layoutDirection, this)
-                             canvas.drawOutline(outline, paint)
-                         }
+                        val outline = CircleShape.createOutline(this.size, this.layoutDirection, this)
+                        canvas.drawOutline(outline, paint)
                      }
-                 } else {
-                     it
-                 }
-             },
+                  }
+               } else {
+                  it
+               }
+            },
          contentAlignment = Alignment.Center
       ) {
          content()

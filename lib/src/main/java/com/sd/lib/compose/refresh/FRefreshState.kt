@@ -32,13 +32,12 @@ interface FRefreshState {
    /** 嵌套滚动对象，外部需要把此对象传给[Modifier.nestedScroll] */
    val nestedScrollConnection: NestedScrollConnection
 
-   /** 是否刷新中[RefreshInteraction.Refreshing]或者即将刷新[RefreshInteraction.FlingToRefresh] */
-   val isRefreshing: Boolean
-
    /** 当前互动状态 */
    val currentInteraction: RefreshInteraction
+
    /** 互动状态 */
    val interactionState: RefreshInteractionState
+
    /** 刷新方向 */
    val refreshDirection: RefreshDirection
 
@@ -128,7 +127,6 @@ internal class RefreshStateImpl(
    private var _enabled = false
    private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrDefault(Dispatchers.Main)
 
-   override val isRefreshing: Boolean by derivedStateOf { iRefreshing() }
    override val currentInteraction: RefreshInteraction by derivedStateOf { iGetCurrentInteraction() }
    override val interactionState: RefreshInteractionState get() = _interactionState
 
