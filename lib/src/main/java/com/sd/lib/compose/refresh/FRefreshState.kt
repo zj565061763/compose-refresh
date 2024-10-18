@@ -344,9 +344,9 @@ internal class RefreshStateImpl(
    //-------------------- internal getter --------------------
 
    private fun iRefreshing(): Boolean {
-      return _interactionState.current.let {
-         it == RefreshInteraction.Refreshing
-            || it == RefreshInteraction.FlingToRefresh
+      return _interactionState.current.let { current ->
+         current == RefreshInteraction.Refreshing
+            || current == RefreshInteraction.FlingToRefresh
       }
    }
 
