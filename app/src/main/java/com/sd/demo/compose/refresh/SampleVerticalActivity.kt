@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,9 +24,7 @@ class SampleVerticalActivity : ComponentActivity() {
       super.onCreate(savedInstanceState)
       setContent {
          AppTheme {
-            Surface {
-               ContentView()
-            }
+            ContentView()
          }
       }
    }
@@ -40,15 +37,10 @@ private fun ContentView(
 ) {
    val uiState by vm.uiState.collectAsState()
 
-   // 顶部刷新
-   val topRefreshState = rememberFRefreshStateTop {
-      vm.refresh(10)
-   }
-
-   // 底部刷新
-   val bottomRefreshState = rememberFRefreshStateBottom {
-      vm.loadMore()
-   }
+   // top
+   val topRefreshState = rememberFRefreshStateTop { vm.refresh(10) }
+   // bottom
+   val bottomRefreshState = rememberFRefreshStateBottom { vm.loadMore() }
 
    LaunchedEffect(vm) {
       vm.refresh(10)
@@ -57,21 +49,21 @@ private fun ContentView(
    Box(
       modifier = modifier
          .fillMaxSize()
-         // 顶部
+         // top
          .nestedScroll(topRefreshState.nestedScrollConnection)
-         // 底部
+         // bottom
          .nestedScroll(bottomRefreshState.nestedScrollConnection)
    ) {
       ColumnView(uiState.list)
 
-      // 顶部
+      // top
       FRefreshContainer(
          state = topRefreshState,
          isRefreshing = uiState.isRefreshing,
          modifier = Modifier.align(Alignment.TopCenter),
       )
 
-      // 底部
+      // bottom
       FRefreshContainer(
          state = bottomRefreshState,
          isRefreshing = uiState.isLoadingMore,
@@ -80,16 +72,16 @@ private fun ContentView(
    }
 
    LaunchedEffect(topRefreshState) {
-      snapshotFlow { topRefreshState.interactionState }
+      snapshotFlow { topRefreshState.currentInteraction }
          .collect {
-            logMsg { "top interactionState:$it" }
+            logMsg { "top currentInteraction:$it" }
          }
    }
 
    LaunchedEffect(bottomRefreshState) {
-      snapshotFlow { bottomRefreshState.interactionState }
+      snapshotFlow { bottomRefreshState.currentInteraction }
          .collect {
-            logMsg { "bottom interactionState:$it" }
+            logMsg { "bottom currentInteraction:$it" }
          }
    }
 }
