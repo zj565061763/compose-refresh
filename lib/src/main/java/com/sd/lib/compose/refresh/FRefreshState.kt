@@ -29,20 +29,18 @@ import java.util.Collections
 import kotlin.math.absoluteValue
 
 interface FRefreshState {
-   /** 刷新方向 */
-   val refreshDirection: RefreshDirection
+   /** 嵌套滚动对象，外部需要把此对象传给[Modifier.nestedScroll] */
+   val nestedScrollConnection: NestedScrollConnection
 
    /** 是否刷新中[RefreshInteraction.Refreshing]或者即将刷新[RefreshInteraction.FlingToRefresh] */
    val isRefreshing: Boolean
 
    /** 当前互动状态 */
    val currentInteraction: RefreshInteraction
-
    /** 互动状态 */
    val interactionState: RefreshInteractionState
-
-   /** 嵌套滚动对象，外部需要把此对象传给[Modifier.nestedScroll] */
-   val nestedScrollConnection: NestedScrollConnection
+   /** 刷新方向 */
+   val refreshDirection: RefreshDirection
 
    /** 当前偏移量 */
    val offset: Float
