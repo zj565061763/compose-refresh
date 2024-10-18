@@ -215,17 +215,15 @@ internal class RefreshStateImpl(
    }
 
    private suspend fun handleFling(available: Float): Float? {
-      if (currentInteraction == RefreshInteraction.Drag) {
-         if (_progressState >= 1f) {
-            animateToRefresh()
-            _onRefreshCallback?.invoke()
-         } else {
-            animateToReset()
-         }
-         // TODO review consumed
-         return available
+      if (currentInteraction != RefreshInteraction.Drag) return null
+      if (_progressState >= 1f) {
+         animateToRefresh()
+         _onRefreshCallback?.invoke()
+      } else {
+         animateToReset()
       }
-      return null
+      // TODO review consumed
+      return available
    }
 
    private suspend fun animateToRefresh() {
