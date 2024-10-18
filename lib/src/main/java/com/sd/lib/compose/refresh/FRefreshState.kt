@@ -50,11 +50,9 @@ interface FRefreshState {
    val offset: Float
 
    /** 可以触发刷新的距离，默认为容器的大小 */
-   @get:FloatRange(from = 0.0)
    val refreshThreshold: Float
 
    /** 刷新中状态的距离，默认为容器的大小 */
-   @get:FloatRange(from = 0.0)
    val refreshingDistance: Float
 
    /** 是否已经达到可以触发刷新的距离 */
