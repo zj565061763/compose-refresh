@@ -82,9 +82,7 @@ fun DefaultRefreshIndicator(
                RefreshDirection.Left -> 270f
             }
          },
-         isRefreshing = state.currentInteraction.let {
-            it == RefreshInteraction.Refreshing || it == RefreshInteraction.FlingToRefresh
-         },
+         isRefreshing = state.currentInteraction == RefreshInteraction.Refreshing,
          progress = { state.progress },
          contentColor = contentColor,
          spinnerSize = spinnerSize,
