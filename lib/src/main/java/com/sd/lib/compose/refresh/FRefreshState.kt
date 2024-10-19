@@ -14,6 +14,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Velocity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
@@ -121,13 +122,19 @@ internal class RefreshStateImpl(
 
    override fun hideRefresh() {
       coroutineScope.launch(_dispatcher) {
-         // TODO review cancellation logic
-         if (currentInteraction == RefreshInteraction.Refreshing) {
-            _hideRefreshingCallbacks.toTypedArray().forEach {
-               it.invoke()
+         try {
+            if (currentInteraction == RefreshInteraction.Refreshing) {
+               _hideRefreshingCallbacks.toTypedArray().forEach {
+                  it.invoke()
+               }
+            }
+         } finally {
+            if (isActive) {
+               animateToReset()
+            } else {
+               reset()
             }
          }
-         animateToReset()
       }
    }
 
@@ -240,9 +247,13 @@ internal class RefreshStateImpl(
    private fun getThreshold(): Float? {
       val threshold = _refreshThreshold
       if (threshold > 0) return threshold
+      reset()
+      return null
+   }
+
+   private fun reset() {
       _progressState = 0f
       setRefreshInteraction(RefreshInteraction.None)
-      return null
    }
 
    private fun calculateNewOffset(available: Float, threshold: Float): Float {
