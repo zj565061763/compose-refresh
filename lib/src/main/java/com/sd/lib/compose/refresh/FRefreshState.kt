@@ -113,7 +113,9 @@ internal class RefreshStateImpl(
 
    private val _directionHandler = DirectionHandler(
       refreshDirection = refreshDirection,
-      onScroll = { handleScroll(it) },
+      onScroll = { available, isPreBack ->
+         handleScroll(available, isPreBack)
+      },
       onFling = {
          withContext(_dispatcher) {
             handleFling(it)
@@ -162,12 +164,18 @@ internal class RefreshStateImpl(
       _onRefreshCallback = callback
    }
 
-   private fun handleScroll(available: Float): Float? {
+   private fun handleScroll(available: Float, isPreBack: Boolean): Float? {
       val threshold = _refreshThreshold
       if (threshold <= 0f) {
          _progressState = 0f
          setRefreshInteraction(RefreshInteraction.None)
          return null
+      }
+
+      if (isPreBack) {
+         if (currentInteraction == RefreshInteraction.None) {
+            return null
+         }
       }
 
       val transform = transformAvailable(available, threshold)
@@ -194,7 +202,7 @@ internal class RefreshStateImpl(
          }
       }
 
-      return consumed
+      return available.takeIf { currentInteraction == RefreshInteraction.Drag }
    }
 
    private fun transformAvailable(
@@ -259,7 +267,7 @@ internal class RefreshStateImpl(
          available: Offset,
          source: NestedScrollSource,
       ): Offset {
-         return if (canDrag() && source == NestedScrollSource.UserInput) {
+         return if (source == NestedScrollSource.UserInput && canDrag()) {
             _directionHandler.handlePreScroll(available)
          } else {
             Offset.Zero
@@ -271,7 +279,7 @@ internal class RefreshStateImpl(
          available: Offset,
          source: NestedScrollSource,
       ): Offset {
-         return if (canDrag() && source == NestedScrollSource.UserInput) {
+         return if (source == NestedScrollSource.UserInput && canDrag()) {
             _directionHandler.handlePostScroll(available)
          } else {
             Offset.Zero
