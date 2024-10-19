@@ -7,7 +7,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +78,7 @@ fun rememberFRefreshStateTop(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
-   return rememberFRefreshState(
+   return rememberRefreshState(
       refreshDirection = RefreshDirection.Top,
       enabled = enabled,
       onRefresh = onRefresh,
@@ -91,7 +90,7 @@ fun rememberFRefreshStateBottom(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
-   return rememberFRefreshState(
+   return rememberRefreshState(
       refreshDirection = RefreshDirection.Bottom,
       enabled = enabled,
       onRefresh = onRefresh,
@@ -103,7 +102,7 @@ fun rememberFRefreshStateLeft(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
-   return rememberFRefreshState(
+   return rememberRefreshState(
       refreshDirection = RefreshDirection.Left,
       enabled = enabled,
       onRefresh = onRefresh,
@@ -115,7 +114,7 @@ fun rememberFRefreshStateRight(
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
-   return rememberFRefreshState(
+   return rememberRefreshState(
       refreshDirection = RefreshDirection.Right,
       enabled = enabled,
       onRefresh = onRefresh,
@@ -159,17 +158,13 @@ fun rememberFRefreshStateEnd(
 }
 
 @Composable
-private fun rememberFRefreshState(
+private fun rememberRefreshState(
    refreshDirection: RefreshDirection,
    enabled: Boolean = true,
    onRefresh: () -> Unit,
 ): FRefreshState {
-   val coroutineScope = rememberCoroutineScope()
-   return remember(refreshDirection, coroutineScope) {
-      RefreshStateImpl(
-         refreshDirection = refreshDirection,
-         coroutineScope = coroutineScope,
-      )
+   return remember(refreshDirection) {
+      RefreshStateImpl(refreshDirection)
    }.apply {
       setEnabled(enabled)
       setRefreshCallback(onRefresh)

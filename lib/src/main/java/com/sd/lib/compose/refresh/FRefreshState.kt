@@ -1,5 +1,6 @@
 package com.sd.lib.compose.refresh
 
+import android.os.Looper
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
@@ -13,10 +14,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Velocity
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
 
@@ -93,7 +92,6 @@ data class RefreshInteractionState(
 
 internal class RefreshStateImpl(
    override val refreshDirection: RefreshDirection,
-   private val coroutineScope: CoroutineScope,
 ) : FRefreshState {
    private var _enabled = false
    private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrDefault(Dispatchers.Main)
@@ -144,15 +142,13 @@ internal class RefreshStateImpl(
    }
 
    override fun registerHideRefreshing(callback: suspend () -> Unit) {
-      coroutineScope.launch(_dispatcher) {
-         _hideRefreshingCallbacks.add(callback)
-      }
+      check(Looper.myLooper() == Looper.getMainLooper())
+      _hideRefreshingCallbacks.add(callback)
    }
 
    override fun unregisterHideRefreshing(callback: suspend () -> Unit) {
-      coroutineScope.launch(_dispatcher) {
-         _hideRefreshingCallbacks.remove(callback)
-      }
+      check(Looper.myLooper() == Looper.getMainLooper())
+      _hideRefreshingCallbacks.remove(callback)
    }
 
    internal fun setEnabled(enabled: Boolean) {
