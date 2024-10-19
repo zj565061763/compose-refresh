@@ -1,5 +1,6 @@
 package com.sd.lib.compose.refresh
 
+import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.getValue
@@ -154,63 +155,61 @@ internal class RefreshStateImpl(
 
    private val _directionHandler = DirectionHandler(
       refreshDirection = refreshDirection,
-      onPreScroll = { handlePreScroll(it) },
-      onPostScroll = { consumeAvailableOffset(it) },
-      onPreFling = {
+      onPreScroll = { available ->
+         onPreScroll(available).also {
+            Log.i("compose-refresh-demo", "onPreScroll $available $it $currentInteraction")
+         }
+      },
+      onPostScroll = { available ->
+         onPostScroll(available).also {
+            Log.i("compose-refresh-demo", "onPostScroll $available $it $currentInteraction")
+         }
+      },
+      onPreFling = { available ->
          withContext(_dispatcher) {
-            handlePreFling(it)
+            onPreFling(available)
          }
       },
    )
 
-   private fun handlePreScroll(available: Float): Float? {
-      return if (_directionHandler.isBack(available)
-         && currentInteraction == RefreshInteraction.Drag
-      ) {
+   private fun onPreScroll(available: Float): Float? {
+      if (currentInteraction == RefreshInteraction.Drag) {
          consumeAvailableOffset(available)
-         // PreScroll往回滚动，总是消费所有available
-         available
-      } else {
-         null
+         return available
       }
+      return null
+   }
+
+   private fun onPostScroll(available: Float): Float? {
+      if (currentInteraction == RefreshInteraction.None) {
+         val threshold = getThreshold() ?: return null
+         val newOffset = calculateNewOffset(available, threshold)
+         if (newOffset != 0f) {
+            setRefreshInteraction(RefreshInteraction.Drag)
+            _offset = newOffset
+            _progressState = (newOffset / threshold).absoluteValue
+            return available
+         }
+      }
+      return null
    }
 
    private fun consumeAvailableOffset(available: Float): Float? {
-      val threshold = _refreshThreshold
-      if (threshold <= 0f) {
-         _progressState = 0f
-         setRefreshInteraction(RefreshInteraction.None)
-         return null
-      }
-
-      val transform = transformAvailable(available, threshold)
-      val newOffset = (_offset + transform).let { offset ->
-         when (refreshDirection) {
-            RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
-            RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
-         }
-      }
-
-      if (newOffset != 0f) {
-         if (currentInteraction == RefreshInteraction.None) {
-            setRefreshInteraction(RefreshInteraction.Drag)
-         }
-      }
+      check(currentInteraction == RefreshInteraction.Drag)
+      val threshold = getThreshold() ?: return null
+      val newOffset = calculateNewOffset(available, threshold)
 
       val consumed = newOffset - _offset
       _offset = newOffset
       _progressState = (newOffset / threshold).absoluteValue
 
       if (newOffset == 0f) {
-         if (currentInteraction == RefreshInteraction.Drag) {
-            setRefreshInteraction(RefreshInteraction.None)
-         }
+         setRefreshInteraction(RefreshInteraction.None)
       }
-
-      return available.takeIf { currentInteraction == RefreshInteraction.Drag }
+      return consumed
    }
 
-   private suspend fun handlePreFling(available: Float): Float? {
+   private suspend fun onPreFling(available: Float): Float? {
       if (_progressState >= 1f) {
          animateToRefresh()
          _onRefreshCallback?.invoke()
@@ -253,6 +252,24 @@ internal class RefreshStateImpl(
          previous = state.current,
          current = current,
       )
+   }
+
+   private fun getThreshold(): Float? {
+      val threshold = _refreshThreshold
+      if (threshold > 0) return threshold
+      _progressState = 0f
+      setRefreshInteraction(RefreshInteraction.None)
+      return null
+   }
+
+   private fun calculateNewOffset(available: Float, threshold: Float): Float {
+      val transform = transformAvailable(available, threshold)
+      return (_offset + transform).let { offset ->
+         when (refreshDirection) {
+            RefreshDirection.Top, RefreshDirection.Left -> offset.coerceAtLeast(0f)
+            RefreshDirection.Bottom, RefreshDirection.Right -> offset.coerceAtMost(0f)
+         }
+      }
    }
 
    private fun transformAvailable(
