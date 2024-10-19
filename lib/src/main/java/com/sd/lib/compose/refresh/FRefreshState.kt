@@ -35,6 +35,9 @@ interface FRefreshState {
    /** 刷新方向 */
    val refreshDirection: RefreshDirection
 
+   /** 可以触发刷新的距离 */
+   val refreshThreshold: Float
+
    /**
     * 显示刷新状态
     */
@@ -99,13 +102,14 @@ internal class RefreshStateImpl(
    override val progress: Float get() = _progressState
    override val currentInteraction: RefreshInteraction get() = _interactionState.current
    override val interactionState: RefreshInteractionState get() = _interactionState
+   override val refreshThreshold: Float get() = _refreshThresholdState
 
    private val _anim = Animatable(0f, Float.VectorConverter)
    private var _offset = 0f
-   private var _refreshThreshold = 0f
 
    private var _progressState by mutableFloatStateOf(0f)
    private var _interactionState by mutableStateOf(RefreshInteractionState())
+   private var _refreshThresholdState by mutableFloatStateOf(0f)
 
    private var _onRefreshCallback: (() -> Unit)? = null
    private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = mutableSetOf()
@@ -138,7 +142,7 @@ internal class RefreshStateImpl(
    }
 
    override fun setRefreshThreshold(threshold: Float) {
-      _refreshThreshold = threshold.coerceAtLeast(0f)
+      _refreshThresholdState = threshold.coerceAtLeast(0f)
    }
 
    override fun registerHideRefreshing(callback: suspend () -> Unit) {
@@ -242,7 +246,7 @@ internal class RefreshStateImpl(
    }
 
    private fun getThreshold(): Float? {
-      val threshold = _refreshThreshold
+      val threshold = _refreshThresholdState
       if (threshold > 0) return threshold
       reset()
       return null

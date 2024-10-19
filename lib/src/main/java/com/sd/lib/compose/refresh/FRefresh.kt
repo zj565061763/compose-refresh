@@ -28,7 +28,7 @@ fun FRefreshContainer(
          RefreshDirection.Left, RefreshDirection.Right -> it.width
       }.toFloat()
    },
-   indicator: @Composable (FRefreshState) -> Unit = { DefaultRefreshIndicator(state = state) },
+   indicator: @Composable () -> Unit = { DefaultRefreshIndicator(state = state) },
 ) {
    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
@@ -38,6 +38,7 @@ fun FRefreshContainer(
    }
 
    Box(
+      contentAlignment = Alignment.Center,
       modifier = modifier
          .onSizeChanged {
             containerSize = it
@@ -48,12 +49,7 @@ fun FRefreshContainer(
             }
          }
          .graphicsLayer {
-            val threshold = refreshThreshold ?: when (state.refreshDirection) {
-               RefreshDirection.Top, RefreshDirection.Bottom -> size.height
-               RefreshDirection.Left, RefreshDirection.Right -> size.width
-            }
-            val distance = state.progress * threshold
-
+            val distance = state.progress * state.refreshThreshold
             when (state.refreshDirection) {
                RefreshDirection.Top -> translationY = distance - size.height
                RefreshDirection.Left -> translationX = distance - size.width
@@ -61,9 +57,8 @@ fun FRefreshContainer(
                RefreshDirection.Right -> translationX = size.width - distance
             }
          },
-      contentAlignment = Alignment.Center,
    ) {
-      indicator(state)
+      indicator()
    }
 }
 
