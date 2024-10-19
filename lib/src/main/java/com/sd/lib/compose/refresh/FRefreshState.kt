@@ -208,17 +208,6 @@ internal class RefreshStateImpl(
       return available.takeIf { currentInteraction == RefreshInteraction.Drag }
    }
 
-   private fun transformAvailable(
-      available: Float,
-      threshold: Float,
-   ): Float {
-      require(threshold > 0)
-      val maxDragDistance = (threshold * 3f).takeIf { it.isFinite() } ?: Float.MAX_VALUE
-      val currentProgress = (_offset / maxDragDistance).absoluteValue.coerceIn(0f, 1f)
-      val multiplier = (1f - currentProgress).coerceIn(0f, 0.6f)
-      return available * multiplier
-   }
-
    private suspend fun handlePreFling(available: Float): Float? {
       if (_progressState >= 1f) {
          animateToRefresh()
@@ -262,6 +251,17 @@ internal class RefreshStateImpl(
          previous = state.current,
          current = current,
       )
+   }
+
+   private fun transformAvailable(
+      available: Float,
+      threshold: Float,
+   ): Float {
+      require(threshold > 0)
+      val maxDragDistance = (threshold * 3f).takeIf { it.isFinite() } ?: Float.MAX_VALUE
+      val currentProgress = (_offset / maxDragDistance).absoluteValue.coerceIn(0f, 1f)
+      val multiplier = (1f - currentProgress).coerceIn(0f, 0.6f)
+      return available * multiplier
    }
 
    override val nestedScrollConnection = object : NestedScrollConnection {
