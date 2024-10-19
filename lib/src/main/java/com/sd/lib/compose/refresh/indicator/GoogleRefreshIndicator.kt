@@ -99,9 +99,7 @@ private fun CircularArrowProgressIndicator(
 ) {
    val path = remember { Path().apply { fillType = PathFillType.EvenOdd } }
    // TODO: Consider refactoring this sub-component utilizing Modifier.Node
-   val targetAlpha by remember {
-      derivedStateOf { if (progress() >= 1f) MaxAlpha else MinAlpha }
-   }
+   val targetAlpha by remember { derivedStateOf { if (progress() >= 1f) MaxAlpha else MinAlpha } }
    val alphaState = animateFloatAsState(targetValue = targetAlpha, animationSpec = AlphaTween)
    Canvas(
       Modifier
