@@ -7,36 +7,52 @@ internal interface DirectionHandler {
    fun handlePreScroll(available: Offset): Offset
    fun handlePostScroll(available: Offset): Offset
    suspend fun handlePreFling(available: Velocity): Velocity
+
+   fun isBack(available: Float): Boolean
 }
 
 internal fun DirectionHandler(
    refreshDirection: RefreshDirection,
-   onScroll: (Float, isPreBack: Boolean) -> Float?,
-   onFling: suspend (Float) -> Float?,
+   onPreScroll: (Float) -> Float?,
+   onPostScroll: (Float) -> Float?,
+   onPreFling: suspend (Float) -> Float?,
 ): DirectionHandler {
-   return DirectionHandlerImpl(
+   return BaseDirectionHandler(
       refreshDirection = refreshDirection,
-      onScroll = onScroll,
-      onFling = onFling,
+      onPreScroll = onPreScroll,
+      onPostScroll = onPostScroll,
+      onPreFling = onPreFling,
    )
 }
 
-private abstract class BaseDirectionHandler(
-   protected val refreshDirection: RefreshDirection,
+private class BaseDirectionHandler(
+   private val refreshDirection: RefreshDirection,
+   private val onPreScroll: (Float) -> Float?,
+   private val onPostScroll: (Float) -> Float?,
+   private val onPreFling: suspend (Float) -> Float?,
 ) : DirectionHandler {
-   final override fun handlePreScroll(available: Offset): Offset {
-      val consumed = onPreScroll(unpackOffset(available)) ?: return Offset.Zero
+   override fun handlePreScroll(available: Offset): Offset {
+      val unpackOffset = unpackOffset(available).also { if (it == 0f) return Offset.Zero }
+      val consumed = onPreScroll(unpackOffset) ?: return Offset.Zero
       return packOffset(consumed)
    }
 
-   final override fun handlePostScroll(available: Offset): Offset {
-      val consumed = onPostScroll(unpackOffset(available)) ?: return Offset.Zero
+   override fun handlePostScroll(available: Offset): Offset {
+      val unpackOffset = unpackOffset(available).also { if (it == 0f) return Offset.Zero }
+      val consumed = onPostScroll(unpackOffset) ?: return Offset.Zero
       return packOffset(consumed)
    }
 
-   final override suspend fun handlePreFling(available: Velocity): Velocity {
+   override suspend fun handlePreFling(available: Velocity): Velocity {
       val consumed = onPreFling(unpackVelocity(available)) ?: return Velocity.Zero
       return packVelocity(consumed)
+   }
+
+   override fun isBack(available: Float): Boolean {
+      return when (refreshDirection) {
+         RefreshDirection.Top, RefreshDirection.Left -> available < 0
+         RefreshDirection.Bottom, RefreshDirection.Right -> available > 0
+      }
    }
 
    private fun unpackOffset(value: Offset): Float {
@@ -64,39 +80,6 @@ private abstract class BaseDirectionHandler(
       return when (refreshDirection) {
          RefreshDirection.Top, RefreshDirection.Bottom -> Velocity(0f, value)
          RefreshDirection.Left, RefreshDirection.Right -> Velocity(value, 0f)
-      }
-   }
-
-   abstract fun onPreScroll(available: Float): Float?
-   abstract fun onPostScroll(available: Float): Float?
-   abstract suspend fun onPreFling(available: Float): Float?
-}
-
-private class DirectionHandlerImpl(
-   refreshDirection: RefreshDirection,
-   private val onScroll: (Float, isPreBack: Boolean) -> Float?,
-   private val onFling: suspend (Float) -> Float?,
-) : BaseDirectionHandler(refreshDirection = refreshDirection) {
-
-   override fun onPreScroll(available: Float): Float? {
-      if (isBack(available)) {
-         return onScroll(available, true)
-      }
-      return null
-   }
-
-   override fun onPostScroll(available: Float): Float? {
-      return onScroll(available, false)
-   }
-
-   override suspend fun onPreFling(available: Float): Float? {
-      return onFling(available)
-   }
-
-   private fun isBack(available: Float): Boolean {
-      return when (refreshDirection) {
-         RefreshDirection.Top, RefreshDirection.Left -> available < 0
-         RefreshDirection.Bottom, RefreshDirection.Right -> available > 0
       }
    }
 }

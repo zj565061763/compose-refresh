@@ -111,18 +111,6 @@ internal class RefreshStateImpl(
    private var _onRefreshCallback: (() -> Unit)? = null
    private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = Collections.synchronizedSet(mutableSetOf())
 
-   private val _directionHandler = DirectionHandler(
-      refreshDirection = refreshDirection,
-      onScroll = { available, isPreBack ->
-         handleScroll(available, isPreBack)
-      },
-      onFling = {
-         withContext(_dispatcher) {
-            handleFling(it)
-         }
-      },
-   )
-
    override fun showRefresh() {
       coroutineScope.launch(_dispatcher) {
          if (currentInteraction != RefreshInteraction.Refreshing) {
@@ -164,13 +152,28 @@ internal class RefreshStateImpl(
       _onRefreshCallback = callback
    }
 
-   private fun handleScroll(available: Float, isPreBack: Boolean): Float? {
-      if (isPreBack) {
-         if (currentInteraction == RefreshInteraction.None) {
-            return null
+   private val _directionHandler = DirectionHandler(
+      refreshDirection = refreshDirection,
+      onPreScroll = { handlePreScroll(it) },
+      onPostScroll = { consumeAvailableOffset(it) },
+      onPreFling = {
+         withContext(_dispatcher) {
+            handlePreFling(it)
          }
-      }
+      },
+   )
 
+   private fun handlePreScroll(available: Float): Float? {
+      return if (_directionHandler.isBack(available)
+         && currentInteraction == RefreshInteraction.Drag
+      ) {
+         consumeAvailableOffset(available)
+      } else {
+         null
+      }
+   }
+
+   private fun consumeAvailableOffset(available: Float): Float? {
       val threshold = _refreshThreshold
       if (threshold <= 0f) {
          _progressState = 0f
@@ -216,8 +219,7 @@ internal class RefreshStateImpl(
       return available * multiplier
    }
 
-   private suspend fun handleFling(available: Float): Float? {
-      if (currentInteraction != RefreshInteraction.Drag) return null
+   private suspend fun handlePreFling(available: Float): Float? {
       if (_progressState >= 1f) {
          animateToRefresh()
          _onRefreshCallback?.invoke()
@@ -267,7 +269,7 @@ internal class RefreshStateImpl(
          available: Offset,
          source: NestedScrollSource,
       ): Offset {
-         return if (source == NestedScrollSource.UserInput && canDrag()) {
+         return if (source == NestedScrollSource.UserInput && handleScroll()) {
             _directionHandler.handlePreScroll(available)
          } else {
             Offset.Zero
@@ -279,7 +281,7 @@ internal class RefreshStateImpl(
          available: Offset,
          source: NestedScrollSource,
       ): Offset {
-         return if (source == NestedScrollSource.UserInput && canDrag()) {
+         return if (source == NestedScrollSource.UserInput && handleScroll()) {
             _directionHandler.handlePostScroll(available)
          } else {
             Offset.Zero
@@ -287,11 +289,15 @@ internal class RefreshStateImpl(
       }
 
       override suspend fun onPreFling(available: Velocity): Velocity {
-         return _directionHandler.handlePreFling(available)
+         return if (currentInteraction == RefreshInteraction.Drag) {
+            _directionHandler.handlePreFling(available)
+         } else {
+            Velocity.Zero
+         }
       }
    }
 
-   private fun canDrag(): Boolean {
+   private fun handleScroll(): Boolean {
       return _enabled && currentInteraction.let {
          it == RefreshInteraction.None || it == RefreshInteraction.Drag
       }
