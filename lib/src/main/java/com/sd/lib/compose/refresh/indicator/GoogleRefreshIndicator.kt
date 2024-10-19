@@ -104,8 +104,7 @@ private fun CircularArrowProgressIndicator(
    Canvas(
       Modifier
          .semantics(mergeDescendants = true) {
-            progressBarRangeInfo =
-               ProgressBarRangeInfo(progress(), 0f..1f, 0)
+            progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f, 0)
          }
          .size(spinnerSize)
    ) {
