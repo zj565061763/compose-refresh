@@ -16,7 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Collections
 import kotlin.math.absoluteValue
 
 interface FRefreshState {
@@ -109,7 +108,7 @@ internal class RefreshStateImpl(
    private var _interactionState by mutableStateOf(RefreshInteractionState())
 
    private var _onRefreshCallback: (() -> Unit)? = null
-   private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = Collections.synchronizedSet(mutableSetOf())
+   private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = mutableSetOf()
 
    override fun showRefresh() {
       coroutineScope.launch(_dispatcher) {
@@ -137,11 +136,15 @@ internal class RefreshStateImpl(
    }
 
    override fun registerHideRefreshing(callback: suspend () -> Unit) {
-      _hideRefreshingCallbacks.add(callback)
+      coroutineScope.launch(_dispatcher) {
+         _hideRefreshingCallbacks.add(callback)
+      }
    }
 
    override fun unregisterHideRefreshing(callback: suspend () -> Unit) {
-      _hideRefreshingCallbacks.remove(callback)
+      coroutineScope.launch(_dispatcher) {
+         _hideRefreshingCallbacks.remove(callback)
+      }
    }
 
    internal fun setEnabled(enabled: Boolean) {
@@ -156,11 +159,7 @@ internal class RefreshStateImpl(
       refreshDirection = refreshDirection,
       onPreScroll = { consumeAvailable(it) },
       onPostScroll = { onPostScroll(it) },
-      onPreFling = {
-         withContext(_dispatcher) {
-            onPreFling(it)
-         }
-      },
+      onPreFling = { onPreFling(it) },
    )
 
    private fun onPostScroll(available: Float): Float? {
@@ -193,13 +192,15 @@ internal class RefreshStateImpl(
    }
 
    private suspend fun onPreFling(available: Float): Float {
-      if (_progressState >= 1f) {
-         animateToRefresh()
-         _onRefreshCallback?.invoke()
-      } else {
-         animateToReset()
+      return withContext(_dispatcher) {
+         if (_progressState >= 1f) {
+            animateToRefresh()
+            _onRefreshCallback?.invoke()
+         } else {
+            animateToReset()
+         }
+         available
       }
-      return available
    }
 
    private suspend fun animateToRefresh() {
