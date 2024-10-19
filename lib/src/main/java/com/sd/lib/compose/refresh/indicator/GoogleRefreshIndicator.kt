@@ -177,10 +177,7 @@ private fun DrawScope.drawArrow(
    arrow.reset()
    arrow.moveTo(0f, 0f) // Move to left corner
    // Line to tip of arrow
-   arrow.lineTo(
-      x = ArrowWidth.toPx() * values.scale / 2,
-      y = ArrowHeight.toPx() * values.scale
-   )
+   arrow.lineTo(x = ArrowWidth.toPx() * values.scale / 2, y = ArrowHeight.toPx() * values.scale)
    arrow.lineTo(x = ArrowWidth.toPx() * values.scale, y = 0f) // Line to right corner
 
    val radius = min(bounds.width, bounds.height) / 2f
