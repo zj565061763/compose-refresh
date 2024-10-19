@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -38,6 +39,11 @@ fun FRefreshContainer(
       modifier = modifier
          .onSizeChanged {
             containerSize = it
+         }
+         .drawWithContent {
+            if (state.currentInteraction != RefreshInteraction.None) {
+               drawContent()
+            }
          }
          .graphicsLayer {
             val progress = state.progress
