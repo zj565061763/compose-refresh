@@ -190,8 +190,8 @@ private fun DrawScope.drawArrow(
    }
 }
 
-private const val CrossfadeDurationMs = 100
 private const val MaxProgressArc = 0.8f
+private const val CrossfadeDurationMs = 100
 
 private val ArrowWidth = 10.dp
 private val ArrowHeight = 5.dp
