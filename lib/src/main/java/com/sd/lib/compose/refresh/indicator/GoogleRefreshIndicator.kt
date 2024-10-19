@@ -134,10 +134,7 @@ private fun DrawScope.drawCircularIndicator(
       useCenter = false,
       topLeft = arcBounds.topLeft,
       size = arcBounds.size,
-      style = Stroke(
-         width = strokeWidth.toPx(),
-         cap = StrokeCap.Butt
-      )
+      style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
    )
 }
 
