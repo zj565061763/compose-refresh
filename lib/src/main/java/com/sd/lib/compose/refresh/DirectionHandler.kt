@@ -7,8 +7,6 @@ internal interface DirectionHandler {
    fun handlePreScroll(available: Offset): Offset
    fun handlePostScroll(available: Offset): Offset
    suspend fun handlePreFling(available: Velocity): Velocity
-
-   fun isBack(available: Float): Boolean
 }
 
 internal fun DirectionHandler(
@@ -46,13 +44,6 @@ private class BaseDirectionHandler(
    override suspend fun handlePreFling(available: Velocity): Velocity {
       val consumed = onPreFling(unpackVelocity(available)) ?: return Velocity.Zero
       return packVelocity(consumed)
-   }
-
-   override fun isBack(available: Float): Boolean {
-      return when (refreshDirection) {
-         RefreshDirection.Top, RefreshDirection.Left -> available < 0
-         RefreshDirection.Bottom, RefreshDirection.Right -> available > 0
-      }
    }
 
    private fun unpackOffset(value: Offset): Float {
