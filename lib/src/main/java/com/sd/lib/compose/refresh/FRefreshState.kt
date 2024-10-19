@@ -154,7 +154,7 @@ internal class RefreshStateImpl(
 
    private val _directionHandler = DirectionHandler(
       refreshDirection = refreshDirection,
-      onPreScroll = { onPreScroll(it) },
+      onPreScroll = { consumeAvailable(it) },
       onPostScroll = { onPostScroll(it) },
       onPreFling = {
          withContext(_dispatcher) {
@@ -162,14 +162,6 @@ internal class RefreshStateImpl(
          }
       },
    )
-
-   private fun onPreScroll(available: Float): Float? {
-      if (currentInteraction == RefreshInteraction.Drag) {
-         consumeAvailableOffset(available)
-         return available
-      }
-      return null
-   }
 
    private fun onPostScroll(available: Float): Float? {
       if (currentInteraction == RefreshInteraction.None) {
@@ -185,9 +177,10 @@ internal class RefreshStateImpl(
       return null
    }
 
-   private fun consumeAvailableOffset(available: Float) {
-      check(currentInteraction == RefreshInteraction.Drag)
-      val threshold = getThreshold() ?: return
+   private fun consumeAvailable(available: Float): Float? {
+      if (currentInteraction != RefreshInteraction.Drag) return null
+
+      val threshold = getThreshold() ?: return null
       val newOffset = calculateNewOffset(available, threshold)
 
       _offset = newOffset
@@ -196,6 +189,7 @@ internal class RefreshStateImpl(
       if (newOffset == 0f) {
          setRefreshInteraction(RefreshInteraction.None)
       }
+      return available
    }
 
    private suspend fun onPreFling(available: Float): Float? {
