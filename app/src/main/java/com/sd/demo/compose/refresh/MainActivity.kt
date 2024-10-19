@@ -60,6 +60,6 @@ private fun Content(
    }
 }
 
-inline fun logMsg(block: () -> Any?) {
-   Log.i("compose-refresh-demo", block().toString())
+inline fun logMsg(block: () -> String) {
+   Log.i("compose-refresh-demo", block())
 }
