@@ -168,6 +168,8 @@ internal class RefreshStateImpl(
          && currentInteraction == RefreshInteraction.Drag
       ) {
          consumeAvailableOffset(available)
+         // PreScroll往回滚动，总是消费所有available
+         available
       } else {
          null
       }
