@@ -192,14 +192,13 @@ internal class RefreshStateImpl(
       return available
    }
 
-   private suspend fun onPreFling(available: Float): Float? {
+   private suspend fun onPreFling(available: Float): Float {
       if (_progressState >= 1f) {
          animateToRefresh()
          _onRefreshCallback?.invoke()
       } else {
          animateToReset()
       }
-      // TODO review consumed
       return available
    }
 
