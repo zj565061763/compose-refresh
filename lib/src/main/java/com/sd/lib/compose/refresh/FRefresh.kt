@@ -30,6 +30,7 @@ fun FRefreshContainer(
    },
    indicator: @Composable () -> Unit = { DefaultRefreshIndicator(state = state) },
 ) {
+   check(state is RefreshStateImpl)
    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
    val refreshThreshold = getRefreshThreshold(containerSize)?.coerceAtLeast(0f)
