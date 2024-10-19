@@ -32,8 +32,9 @@ fun FRefreshContainer(
 ) {
    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-   getRefreshThreshold(containerSize)?.let { threshold ->
-      state.setRefreshThreshold(threshold)
+   val refreshThreshold = getRefreshThreshold(containerSize)?.coerceAtLeast(0f)
+   if (refreshThreshold != null) {
+      state.setRefreshThreshold(refreshThreshold)
    }
 
    Box(
@@ -47,12 +48,17 @@ fun FRefreshContainer(
             }
          }
          .graphicsLayer {
-            val progress = state.progress
+            val threshold = refreshThreshold ?: when (state.refreshDirection) {
+               RefreshDirection.Top, RefreshDirection.Bottom -> size.height
+               RefreshDirection.Left, RefreshDirection.Right -> size.width
+            }
+            val distance = state.progress * threshold
+
             when (state.refreshDirection) {
-               RefreshDirection.Top -> translationY = progress * size.height - size.height
-               RefreshDirection.Left -> translationX = progress * size.width - size.width
-               RefreshDirection.Bottom -> translationY = size.height - progress * size.height
-               RefreshDirection.Right -> translationX = size.width - progress * size.width
+               RefreshDirection.Top -> translationY = distance - size.height
+               RefreshDirection.Left -> translationX = distance - size.width
+               RefreshDirection.Bottom -> translationY = size.height - distance
+               RefreshDirection.Right -> translationX = size.width - distance
             }
          },
       contentAlignment = Alignment.Center,
