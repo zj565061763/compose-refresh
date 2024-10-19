@@ -48,7 +48,7 @@ interface FRefreshState {
    /**
     * 设置可以触发刷新的距离
     */
-   fun setRefreshThreshold(value: Float)
+   fun setRefreshThreshold(threshold: Float)
 
    /**
     * 注册隐藏刷新回调
@@ -137,8 +137,8 @@ internal class RefreshStateImpl(
       }
    }
 
-   override fun setRefreshThreshold(value: Float) {
-      _refreshThreshold = value.coerceAtLeast(0f)
+   override fun setRefreshThreshold(threshold: Float) {
+      _refreshThreshold = threshold.coerceAtLeast(0f)
    }
 
    override fun registerHideRefreshing(callback: suspend () -> Unit) {
