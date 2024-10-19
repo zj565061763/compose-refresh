@@ -183,10 +183,7 @@ private fun DrawScope.drawArrow(
    val radius = min(bounds.width, bounds.height) / 2f
    val inset = ArrowWidth.toPx() * values.scale / 2f
    arrow.translate(
-      Offset(
-         x = radius + bounds.center.x - inset,
-         y = bounds.center.y - strokeWidth.toPx()
-      )
+      Offset(x = radius + bounds.center.x - inset, y = bounds.center.y - strokeWidth.toPx())
    )
    rotate(degrees = values.endAngle - strokeWidth.toPx()) {
       drawPath(path = arrow, color = color, alpha = alpha, style = Stroke(strokeWidth.toPx()))
