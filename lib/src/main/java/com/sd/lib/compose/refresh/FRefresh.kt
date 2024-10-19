@@ -23,16 +23,18 @@ import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 fun FRefreshContainer(
    state: FRefreshState,
    modifier: Modifier = Modifier,
+   setRefreshThreshold: Boolean = true,
    indicator: @Composable (FRefreshState) -> Unit = { DefaultRefreshIndicator(state = state) },
 ) {
    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-   when (state.refreshDirection) {
-      RefreshDirection.Top, RefreshDirection.Bottom -> containerSize.height
-      RefreshDirection.Left, RefreshDirection.Right -> containerSize.width
-   }.let {
-      // TODO review logic
-      state.setRefreshThreshold(it.toFloat())
+   if (setRefreshThreshold) {
+      when (state.refreshDirection) {
+         RefreshDirection.Top, RefreshDirection.Bottom -> containerSize.height
+         RefreshDirection.Left, RefreshDirection.Right -> containerSize.width
+      }.let {
+         state.setRefreshThreshold(it.toFloat())
+      }
    }
 
    Box(
