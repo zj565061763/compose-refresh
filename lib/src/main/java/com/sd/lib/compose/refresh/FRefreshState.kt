@@ -38,12 +38,12 @@ interface FRefreshState {
    /**
     * 显示刷新状态
     */
-   fun showRefresh()
+   suspend fun showRefresh()
 
    /**
     * 隐藏刷新状态
     */
-   fun hideRefresh()
+   suspend fun hideRefresh()
 
    /**
     * 设置可以触发刷新的距离
@@ -111,8 +111,8 @@ internal class RefreshStateImpl(
    private var _onRefreshCallback: (() -> Unit)? = null
    private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = mutableSetOf()
 
-   override fun showRefresh() {
-      coroutineScope.launch(_dispatcher) {
+   override suspend fun showRefresh() {
+      withContext(_dispatcher) {
          if (currentInteraction != RefreshInteraction.Refreshing) {
             animateToRefresh()
             setRefreshInteraction(RefreshInteraction.Refreshing)
@@ -120,8 +120,8 @@ internal class RefreshStateImpl(
       }
    }
 
-   override fun hideRefresh() {
-      coroutineScope.launch(_dispatcher) {
+   override suspend fun hideRefresh() {
+      withContext(_dispatcher) {
          try {
             if (currentInteraction == RefreshInteraction.Refreshing) {
                _hideRefreshingCallbacks.toTypedArray().forEach {
