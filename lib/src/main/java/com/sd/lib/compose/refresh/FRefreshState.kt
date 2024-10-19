@@ -2,6 +2,7 @@ package com.sd.lib.compose.refresh
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -101,7 +102,7 @@ internal class RefreshStateImpl(
    override val currentInteraction: RefreshInteraction get() = _interactionState.current
    override val interactionState: RefreshInteractionState get() = _interactionState
 
-   private val _anim = Animatable(0f)
+   private val _anim = Animatable(0f, Float.VectorConverter)
    private var _offset = 0f
    private var _refreshThreshold = 0f
 
