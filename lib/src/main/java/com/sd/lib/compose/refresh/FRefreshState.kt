@@ -1,6 +1,5 @@
 package com.sd.lib.compose.refresh
 
-import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.runtime.getValue
@@ -155,19 +154,11 @@ internal class RefreshStateImpl(
 
    private val _directionHandler = DirectionHandler(
       refreshDirection = refreshDirection,
-      onPreScroll = { available ->
-         onPreScroll(available).also {
-            Log.i("compose-refresh-demo", "onPreScroll $available $it $currentInteraction")
-         }
-      },
-      onPostScroll = { available ->
-         onPostScroll(available).also {
-            Log.i("compose-refresh-demo", "onPostScroll $available $it $currentInteraction")
-         }
-      },
-      onPreFling = { available ->
+      onPreScroll = { onPreScroll(it) },
+      onPostScroll = { onPostScroll(it) },
+      onPreFling = {
          withContext(_dispatcher) {
-            onPreFling(available)
+            onPreFling(it)
          }
       },
    )
