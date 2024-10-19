@@ -45,6 +45,7 @@ fun DefaultRefreshIndicator(
    shadow: Boolean = true,
 ) {
    val animScale = remember(state) { Animatable(1f) }
+
    DisposableEffect(state) {
       val callback: suspend () -> Unit = {
          animScale.animateTo(0f)
@@ -54,6 +55,7 @@ fun DefaultRefreshIndicator(
          state.unregisterHideRefreshing(callback)
       }
    }
+
    LaunchedEffect(state) {
       snapshotFlow { state.currentInteraction }
          .collect {
