@@ -185,19 +185,17 @@ internal class RefreshStateImpl(
       return null
    }
 
-   private fun consumeAvailableOffset(available: Float): Float? {
+   private fun consumeAvailableOffset(available: Float) {
       check(currentInteraction == RefreshInteraction.Drag)
-      val threshold = getThreshold() ?: return null
+      val threshold = getThreshold() ?: return
       val newOffset = calculateNewOffset(available, threshold)
 
-      val consumed = newOffset - _offset
       _offset = newOffset
       _progressState = (newOffset / threshold).absoluteValue
 
       if (newOffset == 0f) {
          setRefreshInteraction(RefreshInteraction.None)
       }
-      return consumed
    }
 
    private suspend fun onPreFling(available: Float): Float? {
