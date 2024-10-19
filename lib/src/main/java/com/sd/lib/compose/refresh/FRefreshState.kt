@@ -165,17 +165,17 @@ internal class RefreshStateImpl(
    }
 
    private fun handleScroll(available: Float, isPreBack: Boolean): Float? {
+      if (isPreBack) {
+         if (currentInteraction == RefreshInteraction.None) {
+            return null
+         }
+      }
+
       val threshold = _refreshThreshold
       if (threshold <= 0f) {
          _progressState = 0f
          setRefreshInteraction(RefreshInteraction.None)
          return null
-      }
-
-      if (isPreBack) {
-         if (currentInteraction == RefreshInteraction.None) {
-            return null
-         }
       }
 
       val transform = transformAvailable(available, threshold)
