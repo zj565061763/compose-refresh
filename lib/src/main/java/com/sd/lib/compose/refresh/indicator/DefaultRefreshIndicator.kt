@@ -65,6 +65,10 @@ fun DefaultRefreshIndicator(
          }
    }
 
+   val showRefreshing = state.currentInteraction.let {
+      it == RefreshInteraction.Refreshing || it == RefreshInteraction.FlingToRefresh
+   }
+
    WrapperBox(
       modifier = modifier.graphicsLayer {
          scaleX = animScale.value
@@ -84,7 +88,7 @@ fun DefaultRefreshIndicator(
                RefreshDirection.Left -> 270f
             }
          },
-         isRefreshing = state.currentInteraction == RefreshInteraction.Refreshing,
+         isRefreshing = showRefreshing,
          progress = { state.progress },
          contentColor = contentColor,
          spinnerSize = spinnerSize,

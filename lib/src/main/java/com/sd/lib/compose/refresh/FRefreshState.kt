@@ -14,8 +14,12 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Velocity
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
 
@@ -90,6 +94,7 @@ data class RefreshInteractionState(
 
 internal class RefreshStateImpl(
    override val refreshDirection: RefreshDirection,
+   private val coroutineScope: CoroutineScope,
 ) : FRefreshState {
    private var _enabled = false
    private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrDefault(Dispatchers.Main)
@@ -112,6 +117,7 @@ internal class RefreshStateImpl(
    override suspend fun showRefresh() {
       withContext(_dispatcher) {
          if (currentInteraction != RefreshInteraction.Refreshing) {
+            cancelResetJob()
             animateToRefresh()
             setRefreshInteraction(RefreshInteraction.Refreshing)
          }
@@ -120,6 +126,7 @@ internal class RefreshStateImpl(
 
    override suspend fun hideRefresh() {
       withContext(_dispatcher) {
+         cancelResetJob()
          try {
             if (currentInteraction == RefreshInteraction.Refreshing) {
                _hideRefreshingCallbacks.toTypedArray().forEach {
@@ -199,11 +206,27 @@ internal class RefreshStateImpl(
          if (_progressState >= 1f) {
             animateToRefresh()
             _onRefreshCallback?.invoke()
+            startResetJob()
          } else {
             animateToReset()
          }
          available
       }
+   }
+
+   private var _resetJob: Job? = null
+
+   private fun startResetJob() {
+      cancelResetJob()
+      _resetJob = coroutineScope.launch {
+         delay(300)
+         animateToReset()
+      }
+   }
+
+   private fun cancelResetJob() {
+      _resetJob?.cancel()
+      _resetJob = null
    }
 
    private suspend fun animateToRefresh() {
