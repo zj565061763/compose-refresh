@@ -205,8 +205,8 @@ internal class RefreshStateImpl(
       return withContext(_dispatcher) {
          if (_progressState >= 1f) {
             animateToRefresh()
-            _onRefreshCallback?.invoke()
             startResetJob()
+            _onRefreshCallback?.invoke()
          } else {
             animateToReset()
          }
