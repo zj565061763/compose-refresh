@@ -47,13 +47,9 @@ fun DefaultRefreshIndicator(
   val animScale = remember(state) { Animatable(1f) }
 
   DisposableEffect(state) {
-    val callback: suspend () -> Unit = {
-      animScale.animateTo(0f)
-    }
+    val callback: suspend () -> Unit = { animScale.animateTo(0f) }
     state.registerHideRefreshing(callback)
-    onDispose {
-      state.unregisterHideRefreshing(callback)
-    }
+    onDispose { state.unregisterHideRefreshing(callback) }
   }
 
   LaunchedEffect(state) {
@@ -65,7 +61,8 @@ fun DefaultRefreshIndicator(
   }
 
   val showRefreshing = state.currentInteraction.let {
-    it == RefreshInteraction.Refreshing || it == RefreshInteraction.FlingToRefresh
+    it == RefreshInteraction.Refreshing
+      || it == RefreshInteraction.FlingToRefresh
   }
 
   WrapperBox(
