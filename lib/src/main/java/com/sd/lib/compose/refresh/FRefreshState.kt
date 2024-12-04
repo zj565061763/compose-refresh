@@ -135,12 +135,12 @@ internal class RefreshStateImpl(
   }
 
   override fun registerHideRefreshing(callback: suspend () -> Unit) {
-    check(Looper.myLooper() == Looper.getMainLooper())
+    checkMainThread()
     _hideRefreshingCallbacks.add(callback)
   }
 
   override fun unregisterHideRefreshing(callback: suspend () -> Unit) {
-    check(Looper.myLooper() == Looper.getMainLooper())
+    checkMainThread()
     _hideRefreshingCallbacks.remove(callback)
   }
 
@@ -325,4 +325,8 @@ internal class RefreshStateImpl(
       it == RefreshInteraction.None || it == RefreshInteraction.Drag
     }
   }
+}
+
+private fun checkMainThread() {
+  check(Looper.myLooper() === Looper.getMainLooper())
 }
