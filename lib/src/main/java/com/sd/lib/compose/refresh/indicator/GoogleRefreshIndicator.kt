@@ -54,140 +54,140 @@ import kotlin.math.pow
 
 @Composable
 internal fun GoogleRefreshIndicator(
-   modifier: Modifier = Modifier,
-   isRefreshing: Boolean,
-   progress: () -> Float,
-   contentColor: Color,
-   spinnerSize: Dp,
-   strokeWidth: Dp,
+  modifier: Modifier = Modifier,
+  isRefreshing: Boolean,
+  progress: () -> Float,
+  contentColor: Color,
+  spinnerSize: Dp,
+  strokeWidth: Dp,
 ) {
-   Crossfade(
-      targetState = isRefreshing,
-      animationSpec = tween(durationMillis = CrossfadeDurationMs),
-      label = "Refresh indicator cross fade",
-   ) { refreshing ->
-      Box(
-         modifier = modifier.fillMaxSize(),
-         contentAlignment = Alignment.Center
-      ) {
-         if (refreshing) {
-            CircularProgressIndicator(
-               strokeWidth = strokeWidth,
-               color = contentColor,
-               modifier = Modifier.size(spinnerSize),
-            )
-         } else {
-            CircularArrowProgressIndicator(
-               progress = progress,
-               color = contentColor,
-               spinnerSize = spinnerSize,
-               strokeWidth = strokeWidth,
-               arcRadius = spinnerSize.div(2) - strokeWidth,
-            )
-         }
+  Crossfade(
+    targetState = isRefreshing,
+    animationSpec = tween(durationMillis = CrossfadeDurationMs),
+    label = "Refresh indicator cross fade",
+  ) { refreshing ->
+    Box(
+      modifier = modifier.fillMaxSize(),
+      contentAlignment = Alignment.Center
+    ) {
+      if (refreshing) {
+        CircularProgressIndicator(
+          strokeWidth = strokeWidth,
+          color = contentColor,
+          modifier = Modifier.size(spinnerSize),
+        )
+      } else {
+        CircularArrowProgressIndicator(
+          progress = progress,
+          color = contentColor,
+          spinnerSize = spinnerSize,
+          strokeWidth = strokeWidth,
+          arcRadius = spinnerSize.div(2) - strokeWidth,
+        )
       }
-   }
+    }
+  }
 }
 
 @Composable
 private fun CircularArrowProgressIndicator(
-   progress: () -> Float,
-   color: Color,
-   spinnerSize: Dp,
-   strokeWidth: Dp,
-   arcRadius: Dp,
+  progress: () -> Float,
+  color: Color,
+  spinnerSize: Dp,
+  strokeWidth: Dp,
+  arcRadius: Dp,
 ) {
-   val path = remember { Path().apply { fillType = PathFillType.EvenOdd } }
-   // TODO: Consider refactoring this sub-component utilizing Modifier.Node
-   val targetAlpha by remember { derivedStateOf { if (progress() >= 1f) MaxAlpha else MinAlpha } }
-   val alphaState = animateFloatAsState(targetValue = targetAlpha, animationSpec = AlphaTween)
-   Canvas(
-      Modifier
-         .semantics(mergeDescendants = true) {
-            progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f, 0)
-         }
-         .size(spinnerSize)
-   ) {
-      val values = ArrowValues(progress())
-      val alpha = alphaState.value
-      rotate(degrees = values.rotation) {
-         val arcRadiusPx = arcRadius.toPx() + strokeWidth.toPx() / 2f
-         val arcBounds = Rect(center = size.center, radius = arcRadiusPx)
-         drawCircularIndicator(color, alpha, values, arcBounds, strokeWidth)
-         drawArrow(path, arcBounds, color, alpha, values, strokeWidth)
+  val path = remember { Path().apply { fillType = PathFillType.EvenOdd } }
+  // TODO: Consider refactoring this sub-component utilizing Modifier.Node
+  val targetAlpha by remember { derivedStateOf { if (progress() >= 1f) MaxAlpha else MinAlpha } }
+  val alphaState = animateFloatAsState(targetValue = targetAlpha, animationSpec = AlphaTween)
+  Canvas(
+    Modifier
+      .semantics(mergeDescendants = true) {
+        progressBarRangeInfo = ProgressBarRangeInfo(progress(), 0f..1f, 0)
       }
-   }
+      .size(spinnerSize)
+  ) {
+    val values = ArrowValues(progress())
+    val alpha = alphaState.value
+    rotate(degrees = values.rotation) {
+      val arcRadiusPx = arcRadius.toPx() + strokeWidth.toPx() / 2f
+      val arcBounds = Rect(center = size.center, radius = arcRadiusPx)
+      drawCircularIndicator(color, alpha, values, arcBounds, strokeWidth)
+      drawArrow(path, arcBounds, color, alpha, values, strokeWidth)
+    }
+  }
 }
 
 private fun DrawScope.drawCircularIndicator(
-   color: Color,
-   alpha: Float,
-   values: ArrowValues,
-   arcBounds: Rect,
-   strokeWidth: Dp,
+  color: Color,
+  alpha: Float,
+  values: ArrowValues,
+  arcBounds: Rect,
+  strokeWidth: Dp,
 ) {
-   drawArc(
-      color = color,
-      alpha = alpha,
-      startAngle = values.startAngle,
-      sweepAngle = values.endAngle - values.startAngle,
-      useCenter = false,
-      topLeft = arcBounds.topLeft,
-      size = arcBounds.size,
-      style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
-   )
+  drawArc(
+    color = color,
+    alpha = alpha,
+    startAngle = values.startAngle,
+    sweepAngle = values.endAngle - values.startAngle,
+    useCenter = false,
+    topLeft = arcBounds.topLeft,
+    size = arcBounds.size,
+    style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Butt)
+  )
 }
 
 @Immutable
 private class ArrowValues(
-   val rotation: Float,
-   val startAngle: Float,
-   val endAngle: Float,
-   val scale: Float,
+  val rotation: Float,
+  val startAngle: Float,
+  val endAngle: Float,
+  val scale: Float,
 )
 
 private fun ArrowValues(progress: Float): ArrowValues {
-   // Discard first 40% of progress. Scale remaining progress to full range between 0 and 100%.
-   val adjustedPercent = max(min(1f, progress) - 0.4f, 0f) * 5 / 3
-   // How far beyond the threshold pull has gone, as a percentage of the threshold.
-   val overshootPercent = abs(progress) - 1.0f
-   // Limit the overshoot to 200%. Linear between 0 and 200.
-   val linearTension = overshootPercent.coerceIn(0f, 2f)
-   // Non-linear tension. Increases with linearTension, but at a decreasing rate.
-   val tensionPercent = linearTension - linearTension.pow(2) / 4
+  // Discard first 40% of progress. Scale remaining progress to full range between 0 and 100%.
+  val adjustedPercent = max(min(1f, progress) - 0.4f, 0f) * 5 / 3
+  // How far beyond the threshold pull has gone, as a percentage of the threshold.
+  val overshootPercent = abs(progress) - 1.0f
+  // Limit the overshoot to 200%. Linear between 0 and 200.
+  val linearTension = overshootPercent.coerceIn(0f, 2f)
+  // Non-linear tension. Increases with linearTension, but at a decreasing rate.
+  val tensionPercent = linearTension - linearTension.pow(2) / 4
 
-   // Calculations based on SwipeRefreshLayout specification.
-   val endTrim = adjustedPercent * MaxProgressArc
-   val rotation = (-0.25f + 0.4f * adjustedPercent + tensionPercent) * 0.5f
-   val startAngle = rotation * 360
-   val endAngle = (rotation + endTrim) * 360
-   val scale = min(1f, adjustedPercent)
+  // Calculations based on SwipeRefreshLayout specification.
+  val endTrim = adjustedPercent * MaxProgressArc
+  val rotation = (-0.25f + 0.4f * adjustedPercent + tensionPercent) * 0.5f
+  val startAngle = rotation * 360
+  val endAngle = (rotation + endTrim) * 360
+  val scale = min(1f, adjustedPercent)
 
-   return ArrowValues(rotation, startAngle, endAngle, scale)
+  return ArrowValues(rotation, startAngle, endAngle, scale)
 }
 
 private fun DrawScope.drawArrow(
-   arrow: Path,
-   bounds: Rect,
-   color: Color,
-   alpha: Float,
-   values: ArrowValues,
-   strokeWidth: Dp,
+  arrow: Path,
+  bounds: Rect,
+  color: Color,
+  alpha: Float,
+  values: ArrowValues,
+  strokeWidth: Dp,
 ) {
-   arrow.reset()
-   arrow.moveTo(0f, 0f) // Move to left corner
-   // Line to tip of arrow
-   arrow.lineTo(x = ArrowWidth.toPx() * values.scale / 2, y = ArrowHeight.toPx() * values.scale)
-   arrow.lineTo(x = ArrowWidth.toPx() * values.scale, y = 0f) // Line to right corner
+  arrow.reset()
+  arrow.moveTo(0f, 0f) // Move to left corner
+  // Line to tip of arrow
+  arrow.lineTo(x = ArrowWidth.toPx() * values.scale / 2, y = ArrowHeight.toPx() * values.scale)
+  arrow.lineTo(x = ArrowWidth.toPx() * values.scale, y = 0f) // Line to right corner
 
-   val radius = min(bounds.width, bounds.height) / 2f
-   val inset = ArrowWidth.toPx() * values.scale / 2f
-   arrow.translate(
-      Offset(x = radius + bounds.center.x - inset, y = bounds.center.y - strokeWidth.toPx())
-   )
-   rotate(degrees = values.endAngle - strokeWidth.toPx()) {
-      drawPath(path = arrow, color = color, alpha = alpha, style = Stroke(strokeWidth.toPx()))
-   }
+  val radius = min(bounds.width, bounds.height) / 2f
+  val inset = ArrowWidth.toPx() * values.scale / 2f
+  arrow.translate(
+    Offset(x = radius + bounds.center.x - inset, y = bounds.center.y - strokeWidth.toPx())
+  )
+  rotate(degrees = values.endAngle - strokeWidth.toPx()) {
+    drawPath(path = arrow, color = color, alpha = alpha, style = Stroke(strokeWidth.toPx()))
+  }
 }
 
 private const val MaxProgressArc = 0.8f

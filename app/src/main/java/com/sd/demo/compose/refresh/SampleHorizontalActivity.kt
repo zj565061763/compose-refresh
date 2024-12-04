@@ -21,69 +21,69 @@ import com.sd.lib.compose.refresh.rememberFRefreshStateStart
 import com.sd.lib.compose.refresh.setRefreshing
 
 class SampleHorizontalActivity : ComponentActivity() {
-   override fun onCreate(savedInstanceState: Bundle?) {
-      super.onCreate(savedInstanceState)
-      setContent {
-         AppTheme {
-            ContentView()
-         }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContent {
+      AppTheme {
+        ContentView()
       }
-   }
+    }
+  }
 }
 
 @Composable
 private fun ContentView(
-   modifier: Modifier = Modifier,
-   vm: PageViewModel = viewModel(),
+  modifier: Modifier = Modifier,
+  vm: PageViewModel = viewModel(),
 ) {
-   val uiState by vm.uiState.collectAsState()
+  val uiState by vm.uiState.collectAsState()
 
-   // start
-   val startRefreshState = rememberFRefreshStateStart { vm.refresh(10) }
-   startRefreshState.setRefreshing(uiState.isRefreshing)
+  // start
+  val startRefreshState = rememberFRefreshStateStart { vm.refresh(10) }
+  startRefreshState.setRefreshing(uiState.isRefreshing)
 
-   // end
-   val endRefreshState = rememberFRefreshStateEnd { vm.loadMore() }
-   endRefreshState.setRefreshing(uiState.isLoadingMore)
+  // end
+  val endRefreshState = rememberFRefreshStateEnd { vm.loadMore() }
+  endRefreshState.setRefreshing(uiState.isLoadingMore)
 
-   LaunchedEffect(vm) {
-      vm.refresh(10)
-   }
+  LaunchedEffect(vm) {
+    vm.refresh(10)
+  }
 
-   Box(
-      modifier = modifier
-         .fillMaxSize()
-         // start
-         .nestedScroll(startRefreshState.nestedScrollConnection)
-         // end
-         .nestedScroll(endRefreshState.nestedScrollConnection)
-   ) {
-      RowView(uiState.list)
-
+  Box(
+    modifier = modifier
+      .fillMaxSize()
       // start
-      FRefreshContainer(
-         state = startRefreshState,
-         modifier = Modifier.align(Alignment.CenterStart),
-      )
-
+      .nestedScroll(startRefreshState.nestedScrollConnection)
       // end
-      FRefreshContainer(
-         state = endRefreshState,
-         modifier = Modifier.align(Alignment.CenterEnd),
-      )
-   }
+      .nestedScroll(endRefreshState.nestedScrollConnection)
+  ) {
+    RowView(uiState.list)
 
-   LaunchedEffect(startRefreshState) {
-      snapshotFlow { startRefreshState.interactionState }
-         .collect {
-            logMsg { "start interactionState:$it" }
-         }
-   }
+    // start
+    FRefreshContainer(
+      state = startRefreshState,
+      modifier = Modifier.align(Alignment.CenterStart),
+    )
 
-   LaunchedEffect(endRefreshState) {
-      snapshotFlow { endRefreshState.interactionState }
-         .collect {
-            logMsg { "end interactionState:$it" }
-         }
-   }
+    // end
+    FRefreshContainer(
+      state = endRefreshState,
+      modifier = Modifier.align(Alignment.CenterEnd),
+    )
+  }
+
+  LaunchedEffect(startRefreshState) {
+    snapshotFlow { startRefreshState.interactionState }
+      .collect {
+        logMsg { "start interactionState:$it" }
+      }
+  }
+
+  LaunchedEffect(endRefreshState) {
+    snapshotFlow { endRefreshState.interactionState }
+      .collect {
+        logMsg { "end interactionState:$it" }
+      }
+  }
 }

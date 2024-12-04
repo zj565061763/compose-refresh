@@ -19,69 +19,69 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ColumnView(
-   list: List<String>,
-   modifier: Modifier = Modifier,
+  list: List<String>,
+  modifier: Modifier = Modifier,
 ) {
-   LazyColumn(
-      modifier = modifier.fillMaxSize()
-   ) {
-      items(list) { item ->
-         ColumnViewItem(text = item)
-      }
+  LazyColumn(
+    modifier = modifier.fillMaxSize()
+  ) {
+    items(list) { item ->
+      ColumnViewItem(text = item)
+    }
 
-      item { Box(modifier = Modifier.height(50.dp)) }
-   }
+    item { Box(modifier = Modifier.height(50.dp)) }
+  }
 }
 
 @Composable
 fun ColumnViewItem(
-   text: String,
-   modifier: Modifier = Modifier,
+  text: String,
+  modifier: Modifier = Modifier,
 ) {
-   Box(
-      modifier = modifier
-         .fillMaxWidth()
-         .height(50.dp)
-         .background(color = Color(0xFFCCCCCC))
-   ) {
-      Text(
-         text = text,
-         modifier = Modifier.align(Alignment.Center),
-      )
-   }
+  Box(
+    modifier = modifier
+      .fillMaxWidth()
+      .height(50.dp)
+      .background(color = Color(0xFFCCCCCC))
+  ) {
+    Text(
+      text = text,
+      modifier = Modifier.align(Alignment.Center),
+    )
+  }
 }
 
 
 @Composable
 fun RowView(
-   list: List<String>,
-   modifier: Modifier = Modifier,
+  list: List<String>,
+  modifier: Modifier = Modifier,
 ) {
-   LazyRow(
-      modifier = modifier.fillMaxSize()
-   ) {
-      items(list) { item ->
-         RowViewItem(text = item)
-      }
+  LazyRow(
+    modifier = modifier.fillMaxSize()
+  ) {
+    items(list) { item ->
+      RowViewItem(text = item)
+    }
 
-      item { Box(modifier = Modifier.width(50.dp)) }
-   }
+    item { Box(modifier = Modifier.width(50.dp)) }
+  }
 }
 
 @Composable
 fun RowViewItem(
-   text: String,
-   modifier: Modifier = Modifier,
+  text: String,
+  modifier: Modifier = Modifier,
 ) {
-   Box(
-      modifier = modifier
-         .fillMaxHeight()
-         .width(50.dp)
-         .background(color = Color(0xFFCCCCCC))
-   ) {
-      Text(
-         text = text,
-         modifier = Modifier.align(Alignment.Center),
-      )
-   }
+  Box(
+    modifier = modifier
+      .fillMaxHeight()
+      .width(50.dp)
+      .background(color = Color(0xFFCCCCCC))
+  ) {
+    Text(
+      text = text,
+      modifier = Modifier.align(Alignment.Center),
+    )
+  }
 }
