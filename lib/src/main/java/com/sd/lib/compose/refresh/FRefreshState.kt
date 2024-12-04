@@ -14,12 +14,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Velocity
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
 
@@ -87,7 +86,6 @@ data class RefreshInteractionState(
 
 internal class RefreshStateImpl(
   override val refreshDirection: RefreshDirection,
-  private val coroutineScope: CoroutineScope,
 ) : FRefreshState {
   private var _enabled = false
   private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrElse { Dispatchers.Main }
@@ -198,11 +196,12 @@ internal class RefreshStateImpl(
       return withContext(_dispatcher) {
         if (_progressState >= 1f) {
           animateToRefresh()
-          startResetJob()
+          _resetJob = currentCoroutineContext()[Job]
           _onRefreshCallback?.invoke()
-        } else {
-          animateToReset()
+          delay(200)
+          _resetJob = null
         }
+        animateToReset()
         available
       }
     }
@@ -306,15 +305,6 @@ internal class RefreshStateImpl(
   }
 
   private var _resetJob: Job? = null
-
-  private fun startResetJob() {
-    cancelResetJob()
-    _resetJob = coroutineScope.launch {
-      delay(300)
-      animateToReset()
-    }
-  }
-
   private fun cancelResetJob() {
     _resetJob?.cancel()
     _resetJob = null

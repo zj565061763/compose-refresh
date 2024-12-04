@@ -7,7 +7,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -163,12 +162,8 @@ private fun rememberRefreshState(
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
-  val coroutineScope = rememberCoroutineScope()
-  return remember(refreshDirection, coroutineScope) {
-    RefreshStateImpl(
-      refreshDirection = refreshDirection,
-      coroutineScope = coroutineScope,
-    )
+  return remember(refreshDirection) {
+    RefreshStateImpl(refreshDirection)
   }.apply {
     setEnabled(enabled)
     setRefreshCallback(onRefresh)
