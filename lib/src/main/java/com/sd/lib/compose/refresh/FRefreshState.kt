@@ -136,10 +136,6 @@ internal class RefreshStateImpl(
     }
   }
 
-  internal fun setRefreshThreshold(threshold: Float) {
-    _refreshThresholdState = threshold.coerceAtLeast(0f)
-  }
-
   override fun registerHideRefreshing(callback: suspend () -> Unit) {
     check(Looper.myLooper() == Looper.getMainLooper())
     _hideRefreshingCallbacks.add(callback)
@@ -148,6 +144,10 @@ internal class RefreshStateImpl(
   override fun unregisterHideRefreshing(callback: suspend () -> Unit) {
     check(Looper.myLooper() == Looper.getMainLooper())
     _hideRefreshingCallbacks.remove(callback)
+  }
+
+  internal fun setRefreshThreshold(threshold: Float) {
+    _refreshThresholdState = threshold.coerceAtLeast(0f)
   }
 
   internal fun setEnabled(enabled: Boolean) {
