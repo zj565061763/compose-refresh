@@ -22,18 +22,19 @@ import com.sd.lib.compose.refresh.indicator.DefaultRefreshIndicator
 fun FRefreshContainer(
   state: FRefreshState,
   modifier: Modifier = Modifier,
-  getRefreshThreshold: @Composable (IntSize) -> Float = {
+  getRefreshThreshold: @Composable (IntSize) -> Float = { size ->
     when (state.refreshDirection) {
-      RefreshDirection.Top, RefreshDirection.Bottom -> it.height
-      RefreshDirection.Left, RefreshDirection.Right -> it.width
+      RefreshDirection.Top, RefreshDirection.Bottom -> size.height
+      RefreshDirection.Left, RefreshDirection.Right -> size.width
     }.toFloat()
   },
   indicator: @Composable () -> Unit = { DefaultRefreshIndicator(state = state) },
 ) {
   check(state is RefreshStateImpl)
-
   var containerSize by remember { mutableStateOf(IntSize.Zero) }
-  state.setRefreshThreshold(getRefreshThreshold(containerSize))
+
+  val refreshThreshold = getRefreshThreshold(containerSize)
+  state.setRefreshThreshold(refreshThreshold)
 
   Box(
     contentAlignment = Alignment.Center,
