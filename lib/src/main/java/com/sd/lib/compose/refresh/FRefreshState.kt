@@ -193,17 +193,15 @@ internal class RefreshStateImpl(
 
   private suspend fun onPreFling(available: Float): Float? {
     if (currentInteraction == RefreshInteraction.Drag) {
-      return withContext(_dispatcher) {
-        if (_progressState >= 1f) {
-          animateToRefresh()
-          _resetJob = currentCoroutineContext()[Job]
-          _onRefreshCallback?.invoke()
-          delay(200)
-          _resetJob = null
-        }
-        animateToReset()
-        available
+      if (_progressState >= 1f) {
+        animateToRefresh()
+        _resetJob = currentCoroutineContext()[Job]
+        _onRefreshCallback?.invoke()
+        delay(200)
+        _resetJob = null
       }
+      animateToReset()
+      return available
     }
     return null
   }
