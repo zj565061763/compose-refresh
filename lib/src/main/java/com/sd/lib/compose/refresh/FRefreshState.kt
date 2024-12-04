@@ -90,7 +90,7 @@ internal class RefreshStateImpl(
   private val coroutineScope: CoroutineScope,
 ) : FRefreshState {
   private var _enabled = false
-  private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrDefault(Dispatchers.Main)
+  private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrElse { Dispatchers.Main }
 
   override val progress: Float get() = _progressState
   override val currentInteraction: RefreshInteraction get() = _interactionState.current
