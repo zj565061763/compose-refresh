@@ -42,7 +42,8 @@ private class DirectionHandlerImpl(
    }
 
    override suspend fun handlePreFling(available: Velocity): Velocity {
-      val consumed = onPreFling(unpackVelocity(available)) ?: return Velocity.Zero
+      val unpackVelocity = unpackVelocity(available)
+      val consumed = onPreFling(unpackVelocity) ?: return Velocity.Zero
       return packVelocity(consumed)
    }
 
