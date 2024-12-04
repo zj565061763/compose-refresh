@@ -122,9 +122,7 @@ internal class RefreshStateImpl(
       cancelResetJob()
       try {
         if (currentInteraction == RefreshInteraction.Refreshing) {
-          _hideRefreshingCallbacks.toTypedArray().forEach {
-            it.invoke()
-          }
+          _hideRefreshingCallbacks.toTypedArray().forEach { it.invoke() }
         }
       } finally {
         if (isActive) {
