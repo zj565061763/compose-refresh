@@ -15,7 +15,7 @@ internal fun DirectionHandler(
    onPostScroll: (Float) -> Float?,
    onPreFling: suspend (Float) -> Float?,
 ): DirectionHandler {
-   return BaseDirectionHandler(
+   return DirectionHandlerImpl(
       refreshDirection = refreshDirection,
       onPreScroll = onPreScroll,
       onPostScroll = onPostScroll,
@@ -23,7 +23,7 @@ internal fun DirectionHandler(
    )
 }
 
-private class BaseDirectionHandler(
+private class DirectionHandlerImpl(
    private val refreshDirection: RefreshDirection,
    private val onPreScroll: (Float) -> Float?,
    private val onPostScroll: (Float) -> Float?,
