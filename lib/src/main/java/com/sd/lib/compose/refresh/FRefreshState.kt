@@ -43,24 +43,16 @@ interface FRefreshState {
   /** 可以触发刷新的距离 */
   val refreshThreshold: Float
 
-  /**
-   * 显示刷新状态
-   */
+  /** 显示刷新状态 */
   suspend fun showRefresh()
 
-  /**
-   * 隐藏刷新状态
-   */
+  /** 隐藏刷新状态 */
   suspend fun hideRefresh()
 
-  /**
-   * 注册隐藏刷新回调
-   */
+  /** 注册隐藏刷新回调 */
   fun registerHideRefreshing(callback: suspend () -> Unit)
 
-  /**
-   * 取消注册隐藏刷新回调
-   */
+  /** 取消注册隐藏刷新回调 */
   fun unregisterHideRefreshing(callback: suspend () -> Unit)
 }
 
