@@ -87,14 +87,12 @@ data class RefreshInteractionState(
 internal class RefreshStateImpl(
   override val refreshDirection: RefreshDirection,
 ) : FRefreshState {
-  private var _enabled = false
-  private val _dispatcher = runCatching { Dispatchers.Main.immediate }.getOrElse { Dispatchers.Main }
-
   override val progress: Float get() = _progressState
   override val currentInteraction: RefreshInteraction get() = _interactionState.current
   override val interactionState: RefreshInteractionState get() = _interactionState
   override val refreshThreshold: Float get() = _refreshThresholdState
 
+  private var _enabled = false
   private val _anim = Animatable(0f, Float.VectorConverter)
   private var _offset = 0f
 
@@ -106,7 +104,7 @@ internal class RefreshStateImpl(
   private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = mutableSetOf()
 
   override suspend fun showRefresh() {
-    withContext(_dispatcher) {
+    withContext(Dispatchers.Main) {
       if (currentInteraction != RefreshInteraction.Refreshing) {
         cancelResetJob()
         animateToRefresh()
@@ -116,7 +114,7 @@ internal class RefreshStateImpl(
   }
 
   override suspend fun hideRefresh() {
-    withContext(_dispatcher) {
+    withContext(Dispatchers.Main) {
       cancelResetJob()
       try {
         if (currentInteraction == RefreshInteraction.Refreshing) {
