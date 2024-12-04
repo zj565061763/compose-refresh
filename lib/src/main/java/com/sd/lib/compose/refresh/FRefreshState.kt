@@ -193,17 +193,20 @@ internal class RefreshStateImpl(
     return null
   }
 
-  private suspend fun onPreFling(available: Float): Float {
-    return withContext(_dispatcher) {
-      if (_progressState >= 1f) {
-        animateToRefresh()
-        startResetJob()
-        _onRefreshCallback?.invoke()
-      } else {
-        animateToReset()
+  private suspend fun onPreFling(available: Float): Float? {
+    if (currentInteraction == RefreshInteraction.Drag) {
+      return withContext(_dispatcher) {
+        if (_progressState >= 1f) {
+          animateToRefresh()
+          startResetJob()
+          _onRefreshCallback?.invoke()
+        } else {
+          animateToReset()
+        }
+        available
       }
-      available
     }
+    return null
   }
 
   private var _resetJob: Job? = null
@@ -293,7 +296,7 @@ internal class RefreshStateImpl(
       available: Offset,
       source: NestedScrollSource,
     ): Offset {
-      return if (source == NestedScrollSource.UserInput && handleScroll()) {
+      return if (source == NestedScrollSource.UserInput && _enabled) {
         _directionHandler.handlePreScroll(available)
       } else {
         Offset.Zero
@@ -305,7 +308,7 @@ internal class RefreshStateImpl(
       available: Offset,
       source: NestedScrollSource,
     ): Offset {
-      return if (source == NestedScrollSource.UserInput && handleScroll()) {
+      return if (source == NestedScrollSource.UserInput && _enabled) {
         _directionHandler.handlePostScroll(available)
       } else {
         Offset.Zero
@@ -313,17 +316,7 @@ internal class RefreshStateImpl(
     }
 
     override suspend fun onPreFling(available: Velocity): Velocity {
-      return if (currentInteraction == RefreshInteraction.Drag) {
-        _directionHandler.handlePreFling(available)
-      } else {
-        Velocity.Zero
-      }
-    }
-  }
-
-  private fun handleScroll(): Boolean {
-    return _enabled && currentInteraction.let {
-      it == RefreshInteraction.None || it == RefreshInteraction.Drag
+      return _directionHandler.handlePreFling(available)
     }
   }
 }
