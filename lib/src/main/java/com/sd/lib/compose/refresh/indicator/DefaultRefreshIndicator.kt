@@ -57,12 +57,11 @@ fun DefaultRefreshIndicator(
   }
 
   LaunchedEffect(state) {
-    snapshotFlow { state.currentInteraction }
-      .collect {
-        if (it == RefreshInteraction.None) {
-          animScale.snapTo(1f)
-        }
+    snapshotFlow { state.currentInteraction }.collect {
+      if (it == RefreshInteraction.None) {
+        animScale.snapTo(1f)
       }
+    }
   }
 
   val showRefreshing = state.currentInteraction.let {
@@ -114,33 +113,33 @@ private fun WrapperBox(
   ) {
     Box(
       modifier = Modifier
-         .size(size)
-         .background(backgroundColor, CircleShape)
-         .let {
-            if (shadow) {
-               it.drawBehind {
-                  drawIntoCanvas { canvas ->
-                     val paint = Paint()
-                     with(paint.asFrameworkPaint()) {
-                        this.color = backgroundColor.toArgb()
-                        this.setShadowLayer(
-                           5.dp.toPx(),
-                           0f,
-                           0f,
-                           shadowColor
-                              .copy(0.2f)
-                              .toArgb(),
-                        )
-                     }
+        .size(size)
+        .background(backgroundColor, CircleShape)
+        .let {
+          if (shadow) {
+            it.drawBehind {
+              drawIntoCanvas { canvas ->
+                val paint = Paint()
+                with(paint.asFrameworkPaint()) {
+                  this.color = backgroundColor.toArgb()
+                  this.setShadowLayer(
+                    5.dp.toPx(),
+                    0f,
+                    0f,
+                    shadowColor
+                      .copy(0.2f)
+                      .toArgb(),
+                  )
+                }
 
-                     val outline = CircleShape.createOutline(this.size, this.layoutDirection, this)
-                     canvas.drawOutline(outline, paint)
-                  }
-               }
-            } else {
-               it
+                val outline = CircleShape.createOutline(this.size, this.layoutDirection, this)
+                canvas.drawOutline(outline, paint)
+              }
             }
-         },
+          } else {
+            it
+          }
+        },
       contentAlignment = Alignment.Center
     ) {
       content()
