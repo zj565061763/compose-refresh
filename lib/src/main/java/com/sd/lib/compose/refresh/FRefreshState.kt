@@ -27,6 +27,7 @@ interface FRefreshState {
   /** 嵌套滚动对象，外部需要把此对象传给[Modifier.nestedScroll] */
   val nestedScrollConnection: NestedScrollConnection
 
+  /** 偏移量除以[refreshThreshold] */
   @get:FloatRange(from = 0.0)
   val progress: Float
 
