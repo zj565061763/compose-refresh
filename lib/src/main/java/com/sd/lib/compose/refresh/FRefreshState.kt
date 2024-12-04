@@ -209,21 +209,6 @@ internal class RefreshStateImpl(
     return null
   }
 
-  private var _resetJob: Job? = null
-
-  private fun startResetJob() {
-    cancelResetJob()
-    _resetJob = coroutineScope.launch {
-      delay(300)
-      animateToReset()
-    }
-  }
-
-  private fun cancelResetJob() {
-    _resetJob?.cancel()
-    _resetJob = null
-  }
-
   private suspend fun animateToRefresh() {
     if (_progressState != 1f) {
       setRefreshInteraction(RefreshInteraction.FlingToRefresh)
@@ -318,6 +303,21 @@ internal class RefreshStateImpl(
     override suspend fun onPreFling(available: Velocity): Velocity {
       return _directionHandler.handlePreFling(available)
     }
+  }
+
+  private var _resetJob: Job? = null
+
+  private fun startResetJob() {
+    cancelResetJob()
+    _resetJob = coroutineScope.launch {
+      delay(300)
+      animateToReset()
+    }
+  }
+
+  private fun cancelResetJob() {
+    _resetJob?.cancel()
+    _resetJob = null
   }
 }
 
