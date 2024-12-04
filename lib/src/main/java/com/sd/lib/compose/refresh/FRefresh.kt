@@ -60,25 +60,15 @@ fun FRefreshContainer(
   }
 }
 
-@SuppressLint("ComposableNaming")
-@Composable
-fun FRefreshState.setRefreshing(isRefreshing: Boolean) {
-  LaunchedEffect(isRefreshing) {
-    if (isRefreshing) {
-      showRefresh()
-    } else {
-      hideRefresh()
-    }
-  }
-}
-
 @Composable
 fun rememberFRefreshStateTop(
+  isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return rememberRefreshState(
     refreshDirection = RefreshDirection.Top,
+    isRefreshing = isRefreshing,
     enabled = enabled,
     onRefresh = onRefresh,
   )
@@ -86,11 +76,13 @@ fun rememberFRefreshStateTop(
 
 @Composable
 fun rememberFRefreshStateBottom(
+  isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return rememberRefreshState(
     refreshDirection = RefreshDirection.Bottom,
+    isRefreshing = isRefreshing,
     enabled = enabled,
     onRefresh = onRefresh,
   )
@@ -98,11 +90,13 @@ fun rememberFRefreshStateBottom(
 
 @Composable
 fun rememberFRefreshStateLeft(
+  isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return rememberRefreshState(
     refreshDirection = RefreshDirection.Left,
+    isRefreshing = isRefreshing,
     enabled = enabled,
     onRefresh = onRefresh,
   )
@@ -110,11 +104,13 @@ fun rememberFRefreshStateLeft(
 
 @Composable
 fun rememberFRefreshStateRight(
+  isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return rememberRefreshState(
     refreshDirection = RefreshDirection.Right,
+    isRefreshing = isRefreshing,
     enabled = enabled,
     onRefresh = onRefresh,
   )
@@ -122,16 +118,19 @@ fun rememberFRefreshStateRight(
 
 @Composable
 fun rememberFRefreshStateStart(
+  isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
     rememberFRefreshStateLeft(
+      isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,
     )
   } else {
     rememberFRefreshStateRight(
+      isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,
     )
@@ -140,16 +139,19 @@ fun rememberFRefreshStateStart(
 
 @Composable
 fun rememberFRefreshStateEnd(
+  isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
     rememberFRefreshStateRight(
+      isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,
     )
   } else {
     rememberFRefreshStateLeft(
+      isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,
     )
@@ -159,7 +161,8 @@ fun rememberFRefreshStateEnd(
 @Composable
 private fun rememberRefreshState(
   refreshDirection: RefreshDirection,
-  enabled: Boolean = true,
+  isRefreshing: Boolean?,
+  enabled: Boolean,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return remember(refreshDirection) {
@@ -167,5 +170,20 @@ private fun rememberRefreshState(
   }.apply {
     setEnabled(enabled)
     setRefreshCallback(onRefresh)
+    if (isRefreshing != null) {
+      setRefreshing(isRefreshing)
+    }
+  }
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun FRefreshState.setRefreshing(isRefreshing: Boolean) {
+  LaunchedEffect(isRefreshing) {
+    if (isRefreshing) {
+      showRefresh()
+    } else {
+      hideRefresh()
+    }
   }
 }
