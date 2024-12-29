@@ -240,9 +240,12 @@ internal class RefreshStateImpl(
 
   private fun getThreshold(): Float? {
     val threshold = _refreshThresholdState
-    if (threshold > 0) return threshold
-    reset()
-    return null
+    return if (threshold > 0) {
+      threshold
+    } else {
+      reset()
+      null
+    }
   }
 
   private fun reset() {
