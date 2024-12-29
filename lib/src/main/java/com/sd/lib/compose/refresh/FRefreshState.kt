@@ -18,7 +18,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import kotlin.math.absoluteValue
 
@@ -114,17 +113,8 @@ internal class RefreshStateImpl(
   override suspend fun hideRefresh() {
     withContext(Dispatchers.Main) {
       cancelResetJob()
-      try {
-        if (currentInteraction == RefreshInteraction.Refreshing) {
-          _hideRefreshingCallbacks.toTypedArray().forEach { it.invoke() }
-        }
-      } finally {
-        if (isActive) {
-          animateToReset()
-        } else {
-          reset()
-        }
-      }
+      notifyHideRefreshing()
+      animateToReset()
     }
   }
 
@@ -136,6 +126,18 @@ internal class RefreshStateImpl(
   override fun unregisterHideRefreshing(callback: suspend () -> Unit) {
     checkMainThread()
     _hideRefreshingCallbacks.remove(callback)
+  }
+
+  private suspend fun notifyHideRefreshing() {
+    if (currentInteraction == RefreshInteraction.Refreshing) {
+      _hideRefreshingCallbacks.toTypedArray().forEach {
+        try {
+          it.invoke()
+        } catch (e: Throwable) {
+          // Ignore
+        }
+      }
+    }
   }
 
   internal fun setRefreshThreshold(threshold: Float) {
