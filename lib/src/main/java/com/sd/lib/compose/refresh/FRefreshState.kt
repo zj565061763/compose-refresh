@@ -224,6 +224,17 @@ internal class RefreshStateImpl(
     _anim.animateTo(progress) { _progressState = value }
   }
 
+  private fun getThreshold(): Float? {
+    val threshold = _refreshThresholdState
+    return if (threshold > 0) {
+      threshold
+    } else {
+      _progressState = 0f
+      setRefreshInteraction(RefreshInteraction.None)
+      null
+    }
+  }
+
   private fun setRefreshInteraction(current: RefreshInteraction) {
     val state = _interactionState
     if (state.current == current) return
@@ -236,21 +247,6 @@ internal class RefreshStateImpl(
       previous = state.current,
       current = current,
     )
-  }
-
-  private fun getThreshold(): Float? {
-    val threshold = _refreshThresholdState
-    return if (threshold > 0) {
-      threshold
-    } else {
-      reset()
-      null
-    }
-  }
-
-  private fun reset() {
-    _progressState = 0f
-    setRefreshInteraction(RefreshInteraction.None)
   }
 
   private fun calculateNewOffset(available: Float, threshold: Float): Float {
