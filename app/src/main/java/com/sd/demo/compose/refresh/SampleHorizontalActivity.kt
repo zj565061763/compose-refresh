@@ -16,8 +16,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.compose.refresh.theme.AppTheme
 import com.sd.lib.compose.refresh.FRefreshContainer
-import com.sd.lib.compose.refresh.rememberFRefreshStateEnd
-import com.sd.lib.compose.refresh.rememberFRefreshStateStart
+import com.sd.lib.compose.refresh.rememberRefreshStateEnd
+import com.sd.lib.compose.refresh.rememberRefreshStateStart
 
 class SampleHorizontalActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,12 +38,12 @@ private fun ContentView(
   val uiState by vm.uiState.collectAsState()
 
   // start
-  val startRefreshState = rememberFRefreshStateStart(uiState.isRefreshing) {
+  val startRefreshState = rememberRefreshStateStart(uiState.isRefreshing) {
     vm.refresh(10)
   }
 
   // end
-  val endRefreshState = rememberFRefreshStateEnd(uiState.isLoadingMore) {
+  val endRefreshState = rememberRefreshStateEnd(uiState.isLoadingMore) {
     vm.loadMore()
   }
 

@@ -62,7 +62,7 @@ fun FRefreshContainer(
 }
 
 @Composable
-fun rememberFRefreshStateTop(
+fun rememberRefreshStateTop(
   isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
@@ -76,7 +76,7 @@ fun rememberFRefreshStateTop(
 }
 
 @Composable
-fun rememberFRefreshStateBottom(
+fun rememberRefreshStateBottom(
   isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
@@ -90,7 +90,7 @@ fun rememberFRefreshStateBottom(
 }
 
 @Composable
-fun rememberFRefreshStateLeft(
+fun rememberRefreshStateLeft(
   isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
@@ -104,7 +104,7 @@ fun rememberFRefreshStateLeft(
 }
 
 @Composable
-fun rememberFRefreshStateRight(
+fun rememberRefreshStateRight(
   isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
@@ -118,19 +118,19 @@ fun rememberFRefreshStateRight(
 }
 
 @Composable
-fun rememberFRefreshStateStart(
+fun rememberRefreshStateStart(
   isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
-    rememberFRefreshStateLeft(
+    rememberRefreshStateLeft(
       isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,
     )
   } else {
-    rememberFRefreshStateRight(
+    rememberRefreshStateRight(
       isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,
@@ -139,19 +139,19 @@ fun rememberFRefreshStateStart(
 }
 
 @Composable
-fun rememberFRefreshStateEnd(
+fun rememberRefreshStateEnd(
   isRefreshing: Boolean? = null,
   enabled: Boolean = true,
   onRefresh: () -> Unit,
 ): FRefreshState {
   return if (LocalLayoutDirection.current == LayoutDirection.Ltr) {
-    rememberFRefreshStateRight(
+    rememberRefreshStateRight(
       isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,
     )
   } else {
-    rememberFRefreshStateLeft(
+    rememberRefreshStateLeft(
       isRefreshing = isRefreshing,
       enabled = enabled,
       onRefresh = onRefresh,

@@ -16,8 +16,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sd.demo.compose.refresh.theme.AppTheme
 import com.sd.lib.compose.refresh.FRefreshContainer
-import com.sd.lib.compose.refresh.rememberFRefreshStateBottom
-import com.sd.lib.compose.refresh.rememberFRefreshStateTop
+import com.sd.lib.compose.refresh.rememberRefreshStateBottom
+import com.sd.lib.compose.refresh.rememberRefreshStateTop
 
 class SampleVerticalActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,12 +38,12 @@ private fun ContentView(
   val uiState by vm.uiState.collectAsState()
 
   // top
-  val topRefreshState = rememberFRefreshStateTop(uiState.isRefreshing) {
+  val topRefreshState = rememberRefreshStateTop(uiState.isRefreshing) {
     vm.refresh(10)
   }
 
   // bottom
-  val bottomRefreshState = rememberFRefreshStateBottom(uiState.isLoadingMore) {
+  val bottomRefreshState = rememberRefreshStateBottom(uiState.isLoadingMore) {
     vm.loadMore()
   }
 
