@@ -1,6 +1,5 @@
 package com.sd.lib.compose.refresh
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -168,23 +167,17 @@ private fun rememberRefreshState(
 ): FRefreshState {
   return remember(refreshDirection) {
     RefreshStateImpl(refreshDirection)
-  }.apply {
-    setEnabled(enabled)
-    setOnRefresh(onRefresh)
+  }.also { state ->
+    state.setEnabled(enabled)
+    state.setOnRefresh(onRefresh)
     if (isRefreshing != null) {
-      setRefreshing(isRefreshing)
-    }
-  }
-}
-
-@SuppressLint("ComposableNaming")
-@Composable
-fun FRefreshState.setRefreshing(isRefreshing: Boolean) {
-  LaunchedEffect(isRefreshing) {
-    if (isRefreshing) {
-      showRefresh()
-    } else {
-      hideRefresh()
+      LaunchedEffect(state, isRefreshing) {
+        if (isRefreshing) {
+          state.showRefresh()
+        } else {
+          state.hideRefresh()
+        }
+      }
     }
   }
 }
