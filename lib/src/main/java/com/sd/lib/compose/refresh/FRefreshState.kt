@@ -92,8 +92,8 @@ internal class RefreshStateImpl(
   override val refreshThreshold: Float get() = _refreshThresholdState
 
   private var _enabled = false
-  private val _anim = Animatable(0f, Float.VectorConverter)
   private var _offset = 0f
+  private val _animProgress = Animatable(0f, Float.VectorConverter)
 
   private var _progressState by mutableFloatStateOf(0f)
   private var _interactionState by mutableStateOf(RefreshInteractionState())
@@ -220,8 +220,8 @@ internal class RefreshStateImpl(
   }
 
   private suspend fun animateToProgress(progress: Float) {
-    _anim.snapTo(_progressState)
-    _anim.animateTo(progress) { _progressState = value }
+    _animProgress.snapTo(_progressState)
+    _animProgress.animateTo(progress) { _progressState = value }
   }
 
   private fun getThreshold(): Float? {
