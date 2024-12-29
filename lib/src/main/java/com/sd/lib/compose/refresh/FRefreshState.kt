@@ -100,7 +100,7 @@ internal class RefreshStateImpl(
   private var _interactionState by mutableStateOf(RefreshInteractionState())
   private var _refreshThresholdState by mutableFloatStateOf(0f)
 
-  private var _onRefreshCallback: (() -> Unit)? = null
+  private var _onRefresh: (() -> Unit)? = null
   private val _hideRefreshingCallbacks: MutableSet<suspend () -> Unit> = mutableSetOf()
 
   override suspend fun showRefresh() {
@@ -148,8 +148,8 @@ internal class RefreshStateImpl(
     _enabled = enabled
   }
 
-  internal fun setRefreshCallback(callback: () -> Unit) {
-    _onRefreshCallback = callback
+  internal fun setOnRefresh(onRefresh: () -> Unit) {
+    _onRefresh = onRefresh
   }
 
   private val _directionHandler = DirectionHandler(
@@ -194,7 +194,7 @@ internal class RefreshStateImpl(
       if (_progressState >= 1f) {
         animateToRefresh()
         _resetJob = currentCoroutineContext()[Job]
-        _onRefreshCallback?.invoke()
+        _onRefresh?.invoke()
         delay(200)
         _resetJob = null
       }

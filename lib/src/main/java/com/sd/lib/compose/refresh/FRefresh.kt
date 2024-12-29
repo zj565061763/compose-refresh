@@ -170,7 +170,7 @@ private fun rememberRefreshState(
     RefreshStateImpl(refreshDirection)
   }.apply {
     setEnabled(enabled)
-    setRefreshCallback(onRefresh)
+    setOnRefresh(onRefresh)
     if (isRefreshing != null) {
       setRefreshing(isRefreshing)
     }
