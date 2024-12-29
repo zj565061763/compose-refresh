@@ -105,11 +105,9 @@ internal class RefreshStateImpl(
 
   override suspend fun showRefresh() {
     withContext(Dispatchers.Main) {
-      if (currentInteraction != RefreshInteraction.Refreshing) {
-        cancelResetJob()
-        animateToRefresh()
-        setRefreshInteraction(RefreshInteraction.Refreshing)
-      }
+      cancelResetJob()
+      animateToRefresh()
+      setRefreshInteraction(RefreshInteraction.Refreshing)
     }
   }
 
